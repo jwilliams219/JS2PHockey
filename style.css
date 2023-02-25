@@ -1,0 +1,44 @@
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.game {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+.p1 {
+    width: 100vw;
+    height: 50vh;
+    margin: 0;
+    padding: 0;
+    background-color: aquamarine;
+}
+
+.p2 {
+    width: 100vw;
+    height: 50vh;
+    margin: 0;
+    padding: 0;
+    background-color: darkcyan;
+}
+
+canvas {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    display: block;
+    object-fit: contain;
+}
+
+.overlay {
+    position: absolute;
+    z-index: 2;
+    pointer-events: none;
+}
