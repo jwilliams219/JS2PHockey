@@ -14,24 +14,19 @@ body {
 }
 
 .p1 {
-    width: 100vw;
     height: 50vh;
-    margin: 0;
-    padding: 0;
     background-color: aquamarine;
 }
 
 .p2 {
-    width: 100vw;
     height: 50vh;
-    margin: 0;
-    padding: 0;
     background-color: darkcyan;
 }
 
 canvas {
     margin: 0;
     padding: 0;
+    width: 100vw;
     overflow: hidden;
     display: block;
     object-fit: contain;
