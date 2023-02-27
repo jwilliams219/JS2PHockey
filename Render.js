@@ -32,4 +32,18 @@ function movePaddle(e, canvas, paddle) {
   }
   paddle.x = x;
 }
-  
+
+function toggleFullscreen() {
+  let game = document.getElementById("game");
+
+  if (!document.fullscreenElement) {
+    game.requestFullscreen().catch((err) => {
+      alert(
+        `Error attempting to enable fullscreen mode: ${err.message} (${err.name})`
+      );
+    });
+  } else {
+    document.exitFullscreen();
+  }
+  return "done";
+}

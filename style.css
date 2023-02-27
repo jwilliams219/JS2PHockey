@@ -30,10 +30,20 @@ canvas {
     overflow: hidden;
     display: block;
     object-fit: contain;
+    touch-action: none;
 }
 
 .overlay {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
     position: absolute;
     z-index: 2;
     pointer-events: none;
+}
+
+.startButton {
+    position: absolute;
+    top: 49vh; left: 49vw;
+    z-index: 3;
 }
