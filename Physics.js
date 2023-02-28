@@ -113,7 +113,7 @@ function collisionDetection(puck, paddle, overlay) {
     }
 }
 
-function updatePuck(elapsedTime, puck, paddle, overlay) {
+function updatePuck(overlay, elapsedTime, puck, paddle, consumables) {
     if (puck.resetTime > 0) {
         puck.resetTime = puck.resetTime - elapsedTime;
     } else {
@@ -157,4 +157,14 @@ function resetPuck(puck, speed, overlay) {
     puck.velX = initialVelocity.x;
     puck.velY = initialVelocity.y;
     puck.resetTime = 500;
+}
+
+function increaseSpeed(puck, percentIncrease) {
+    const currentVelX = puck.velX;
+    const currentVelY = puck.velY;
+    const currentSpeed = Math.sqrt(Math.pow(currentVelX, 2) + Math.pow(currentVelY, 2));
+    const newSpeed = currentSpeed * (1 + percentIncrease/100);
+    const newVelX = (newSpeed / currentSpeed) * currentVelX;
+    const newVelY = (newSpeed / currentSpeed) * currentVelY;
+    return {"x": newVelX, "y": newVelY};
 }
