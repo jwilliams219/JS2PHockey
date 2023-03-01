@@ -50,8 +50,8 @@ function game() {
     initialSpeed = overlay.height/3;
 
     paddle = {
-      1: { x: canvas1.width/2, y: 50, color: "red", length: paddleLength, width: paddleWidth },
-      2: { x: canvas2.width/2, y: overlay.height-50, color: "blue", length: paddleLength, width: paddleWidth }
+      1: { x: canvas1.width/2, y: 80, color: "red", length: paddleLength, width: paddleWidth },
+      2: { x: canvas2.width/2, y: overlay.height-80, color: "blue", length: paddleLength, width: paddleWidth }
     }
     let initialVelocity = getHalfRandomVelocities(initialSpeed);
     puck = { x: overlay.width/2, y: overlay.height/2, velX: initialVelocity.x, velY: initialVelocity.y, r: puckRadius, resetTime: 1000 };
@@ -153,6 +153,7 @@ function game() {
     if (start) {
       const startButton = document.getElementById("startButton");
       startButton.textContent = "Play Again?"
+      startButton.style.left = "35vw";
     }
     toggleFullscreen();
   }
