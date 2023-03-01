@@ -4,8 +4,8 @@
 function drawPuck(canvas, puck) {
   let ctx = canvas.getContext('2d');
   ctx.beginPath();
-  ctx.arc(puck.x, puck.y, puck.radius, 0, 2*Math.PI, false);
-  ctx.fillStyle = 'black';
+  ctx.arc(puck.x, puck.y, puck.r, 0, 2*Math.PI, false);
+  ctx.fillStyle = '#202124';
   ctx.fill();
   ctx.strokeStyle = 'white';
   ctx.lineWidth = "2";
@@ -25,11 +25,11 @@ function drawPaddle(canvas, paddle) { // Do I want to made the size dynamic on s
 function movePaddle(e, canvas, paddle) {
   let width = canvas.width;
   let x = e.targetTouches[0].clientX;
-  if (x < 40) {
-    x = 40;
+  if (x < paddle.length/2) {
+    x = paddle.length/2;
   }
-  else if (x > width-40) {
-    x = width-40
+  else if (x > width - paddle.length/2) {
+    x = width - paddle.length/2;
   }
   paddle.x = x;
 }
@@ -38,7 +38,7 @@ function drawSpeedDot(canvas, dot) {
   let ctx = canvas.getContext('2d');
   ctx.beginPath();
   ctx.arc(dot.x, dot.y, dot.r, 0, 2*Math.PI, false);
-  ctx.fillStyle = 'green';
+  ctx.fillStyle = '#32CD32';
   ctx.fill();
 }
 
@@ -59,6 +59,22 @@ function drawBomb(canvas, bomb, img) {
   }
 }
 
+function renderScores(canvas1, ctx1, canvas2, ctx2, score) {
+  ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
+  ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+  ctx1.font = '20px Arial';
+  ctx1.save();
+  ctx1.translate(21, canvas1.height -29);
+  ctx1.rotate(Math.PI);
+  ctx1.fillStyle = 'white';
+  ctx1.fillText(score.player1, 0, 0);
+  ctx1.restore();
+  ctx2.font = '20px Arial';
+  ctx2.fillStyle = 'white';
+  ctx2.fillText(score.player2, 10, 30);
+  score.newRender = false;
+}
+
 function toggleFullscreen() {
   let game = document.getElementById("game");
 
@@ -71,4 +87,14 @@ function toggleFullscreen() {
     document.getElementById("overlay").setAttribute("style", "touch-action: auto");
   }
   return "done";
+}
+
+function startButton() {
+  let startButton = document.createElement("button");
+  startButton.id = "startButton";
+  startButton.className = "startButton";
+  startButton.textContent = "Play";
+  startButton.addEventListener("click", () => { start(); });
+  document.body.appendChild(startButton);
+  return true;
 }

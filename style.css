@@ -2,7 +2,7 @@
 body {
     margin: 0;
     padding: 0;
-    background-color: #202124;
+    background-color: black;
     font-size: 16px;
 }
 
@@ -17,12 +17,12 @@ body {
 
 .p1 {
     height: 50vh;
-    background-color: #202124;
+    background-color: black;
 }
 
 .p2 {
     height: 50vh;
-    background-color: #202124;
+    background-color: black;
 }
 
 canvas {
@@ -44,10 +44,11 @@ canvas {
     pointer-events: none;
 }
 
-.startButton {
+button {
     position: absolute;
-    top: 40vh; left: 45vw;
     z-index: 3;
+    left: 40vw;
+    top: 50%;
     color: black;
     font-size: 20px;
     padding: 15px 25px;

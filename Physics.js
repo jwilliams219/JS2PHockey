@@ -14,9 +14,9 @@ function getAngle(x1, y1, x2, y2) {
 }
 
 function pointDetection(puck, overlay) {
-    if (puck.y - puck.radius < 0) {
+    if (puck.y - puck.r < 0) {
         return [true, 2];
-    } else if (puck.y + puck.radius > overlay.height) {
+    } else if (puck.y + puck.r > overlay.height) {
         return [true, 1];
     }
     return [false, 0];
@@ -25,8 +25,8 @@ function pointDetection(puck, overlay) {
 // Calculate if intersection between puck and paddle circles, then address collision.
 function checkRoundEdgeCollision(puck, x, y, r) {
     let distance = distanceBetweenPoints(puck.x, puck.y, x, y);
-    if (distance < puck.radius + r) {
-        let overlap = puck.radius + r - distance;
+    if (distance < puck.r + r) {
+        let overlap = puck.r + r - distance;
         let currentSpeed =  Math.sqrt(puck.velX * puck.velX + puck.velY * puck.velY);
         let angleFromPaddle = getAngle(x, y, puck.x, puck.y);
         puck.velX = Math.cos(angleFromPaddle)*currentSpeed;
@@ -38,13 +38,13 @@ function checkRoundEdgeCollision(puck, x, y, r) {
 
 function collisionDetection(puck, paddle, overlay) {
     // Address wall collisions.
-    if (puck.x-puck.radius < 0) {
-        let overlap = -1*(0 - (puck.x - puck.radius));
-        puck.x = overlap + puck.radius;
+    if (puck.x-puck.r < 0) {
+        let overlap = -1*(0 - (puck.x - puck.r));
+        puck.x = overlap + puck.r;
         puck.velX = -1*puck.velX;
-    } else if (puck.x + puck.radius > overlay.width) {
-        let overlap = puck.x + puck.radius - overlay.width;
-        puck.x = overlay.width - overlap - puck.radius;
+    } else if (puck.x + puck.r > overlay.width) {
+        let overlap = puck.x + puck.r - overlay.width;
+        puck.x = overlay.width - overlap - puck.r;
         puck.velX = -1*puck.velX;
     }
 
@@ -54,14 +54,14 @@ function collisionDetection(puck, paddle, overlay) {
 
     let p1Bottom = p1.y + (p1.width/2);
     let p1Top = p1.y - (p1.width/2);
-    if (puck.y - puck.radius < p1Bottom && puck.y + puck.radius > p1Top && 
-        puck.x - puck.radius < (p1.x + p1.length/2) && puck.x + puck.radius > (p1.x - p1.length/2)) { // Possible Collision
+    if (puck.y - puck.r < p1Bottom && puck.y + puck.r > p1Top && 
+        puck.x - puck.r < (p1.x + p1.length/2) && puck.x + puck.r > (p1.x - p1.length/2)) { // Possible Collision
         // Collision with straight edge
         let leftRadiusCenterX = p1.x - p1.length/2 + p1.width/2;
         let rightRadiusCenterX = p1.x + p1.length/2 - p1.width/2;
         if (puck.x < rightRadiusCenterX && puck.x > leftRadiusCenterX) {
-            let overlap = p1Bottom - (puck.y - puck.radius);
-            puck.y = p1Bottom + overlap + puck.radius;
+            let overlap = p1Bottom - (puck.y - puck.r);
+            puck.y = p1Bottom + overlap + puck.r;
             puck.velY = -1 * puck.velY;
         }
         // Check collision with either rounded edge.
@@ -70,13 +70,13 @@ function collisionDetection(puck, paddle, overlay) {
             checkRoundEdgeCollision(puck, rightRadiusCenterX, p1.y, p1.width/2);
             
             // Address wall collisions again. This(and one below) might not be completely necessary?
-            if (puck.x-puck.radius < 0) {
-                let overlap = -1*(0 - (puck.x - puck.radius));
-                puck.x = overlap + puck.radius;
+            if (puck.x-puck.r < 0) {
+                let overlap = -1*(0 - (puck.x - puck.r));
+                puck.x = overlap + puck.r;
                 puck.velX = -1*puck.velX;
-            } else if (puck.x + puck.radius > overlay.width) {
-                let overlap = puck.x + puck.radius - overlay.width;
-                puck.x = overlay.width - overlap - puck.radius;
+            } else if (puck.x + puck.r > overlay.width) {
+                let overlap = puck.x + puck.r - overlay.width;
+                puck.x = overlay.width - overlap - puck.r;
                 puck.velX = -1*puck.velX;
             }
         }
@@ -84,14 +84,14 @@ function collisionDetection(puck, paddle, overlay) {
 
     let p2Bottom = p2.y + (p2.width/2);
     let p2Top = p2.y - (p2.width/2);
-    if (puck.y - puck.radius < p2Bottom && puck.y + puck.radius > p2Top && 
-        puck.x - puck.radius < (p2.x + p2.length/2) && puck.x + puck.radius > (p2.x - p2.length/2)) { // Possible Collision
+    if (puck.y - puck.r < p2Bottom && puck.y + puck.r > p2Top && 
+        puck.x - puck.r < (p2.x + p2.length/2) && puck.x + puck.r > (p2.x - p2.length/2)) { // Possible Collision
         // Collision with straight edge
         let leftRadiusCenterX = p2.x - p2.length/2 + p2.width/2;
         let rightRadiusCenterX = p2.x + p2.length/2 - p2.width/2;
         if (puck.x < rightRadiusCenterX && puck.x > leftRadiusCenterX) {
-            let overlap = puck.y + puck.radius - p2Top;
-            puck.y = p2Top - overlap - puck.radius;
+            let overlap = puck.y + puck.r - p2Top;
+            puck.y = p2Top - overlap - puck.r;
             puck.velY = -1 * puck.velY;
         }
         // Collision with rounded edge
@@ -100,17 +100,66 @@ function collisionDetection(puck, paddle, overlay) {
             checkRoundEdgeCollision(puck, rightRadiusCenterX, p2.y, p2.width/2);
             
             // Address wall collisions again.
-            if (puck.x-puck.radius < 0) {
-                let overlap = -1*(0 - (puck.x - puck.radius));
-                puck.x = overlap + puck.radius;
+            if (puck.x-puck.r < 0) {
+                let overlap = -1*(0 - (puck.x - puck.r));
+                puck.x = overlap + puck.r;
                 puck.velX = -1*puck.velX;
-            } else if (puck.x + puck.radius > overlay.width) {
-                let overlap = puck.x + puck.radius - overlay.width;
-                puck.x = overlay.width - overlap - puck.radius;
+            } else if (puck.x + puck.r > overlay.width) {
+                let overlap = puck.x + puck.r - overlay.width;
+                puck.x = overlay.width - overlap - puck.r;
                 puck.velX = -1*puck.velX;
             }
         }
     }
+}
+
+function consumableCollisionDetection(puck, consumables) {
+    let dotCollisions = [];
+    let bombCollisions = [];
+    let speedDots = consumables.speedDots;
+    let bombs = consumables.bombs;
+
+    // Speed Up dots
+    for (let i = 0; i < speedDots.length; i++) {
+        if (distanceBetweenPoints(puck.x, puck.y, speedDots[i].x, speedDots[i].y) < speedDots[i].r + puck.r) {
+            dotCollisions.push(i);
+            speedDotEffect(puck);
+        }
+    }
+    // Bombs
+    for (let i = 0; i < bombs.length; i++) {
+        if (distanceBetweenPoints(puck.x, puck.y, bombs[i].x, bombs[i].y) < bombs[i].r + puck.r) {
+            bombCollisions.push(i);
+            bombEffect(puck);
+        }
+    }
+
+    // Remove consumable after effect.
+    dotCollisions = dotCollisions.reverse();
+    bombCollisions = bombCollisions.reverse();
+    for (let i = 0; i < dotCollisions.length; i++) {
+        speedDots.splice(dotCollisions[i], 1);
+    }
+    for (let i = 0; i < bombCollisions.length; i++) {
+        bombs.splice(bombCollisions[i], 1);
+    }
+}
+
+function speedDotEffect(puck) {
+    increaseSpeed(puck, 5); // Increase puck speed by 5%.
+}
+
+function bombEffect(puck) {
+    puck.resetTime = 250; // Pause puck for a quarter second.
+    increaseSpeed(puck, 50); // Increase puck speed by 50%.
+
+    // Get new random direction velocities based on speed, toward players sides.
+    const currentVelX = puck.velX;
+    const currentVelY = puck.velY;
+    const currentSpeed = Math.sqrt(Math.pow(currentVelX, 2) + Math.pow(currentVelY, 2));
+    const newVelocities = getHalfRandomVelocities(currentSpeed);
+    puck.velX = newVelocities.x;
+    puck.velY = newVelocities.y;
 }
 
 function updatePuck(overlay, elapsedTime, puck, paddle, consumables) {
@@ -120,6 +169,7 @@ function updatePuck(overlay, elapsedTime, puck, paddle, consumables) {
         puck.x = puck.x + (puck.velX*elapsedTime/1000);
         puck.y = puck.y + (puck.velY*elapsedTime/1000);
         collisionDetection(puck, paddle, overlay);
+        consumableCollisionDetection(puck, consumables);
     }
     return pointDetection(puck, overlay);
 }
@@ -138,7 +188,8 @@ function getRandomDirectionVelocities(speed) {
     return {"x": velX, "y": velY};
 }
 
-function getInitialVelocities(speed) {
+// Get random direction velocities that can be within 45 degrees of each players direction.
+function getHalfRandomVelocities(speed) {
     if (Math.random() < 0.5) {
         var degrees = getRandomInt(45, 135);
     } else {
@@ -151,7 +202,7 @@ function getInitialVelocities(speed) {
 }
 
 function resetPuck(puck, speed, overlay) {
-    let initialVelocity = getInitialVelocities(speed);
+    let initialVelocity = getHalfRandomVelocities(speed);
     puck.x = overlay.width/2;
     puck.y = overlay.height/2
     puck.velX = initialVelocity.x;
@@ -166,5 +217,6 @@ function increaseSpeed(puck, percentIncrease) {
     const newSpeed = currentSpeed * (1 + percentIncrease/100);
     const newVelX = (newSpeed / currentSpeed) * currentVelX;
     const newVelY = (newSpeed / currentSpeed) * currentVelY;
-    return {"x": newVelX, "y": newVelY};
+    puck.velX = newVelX;
+    puck.velY = newVelY;
 }
