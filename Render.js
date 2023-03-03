@@ -59,7 +59,7 @@ function drawBomb(canvas, bomb, img) {
   }
 }
 
-function renderScores(canvas1, ctx1, canvas2, ctx2, score) {
+function drawScores(canvas1, ctx1, canvas2, ctx2, score) {
   ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
   ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
   ctx1.font = '20px Arial';
@@ -73,6 +73,14 @@ function renderScores(canvas1, ctx1, canvas2, ctx2, score) {
   ctx2.fillStyle = 'white';
   ctx2.fillText(score.player2, 10, 30);
   score.newRender = false;
+}
+
+function drawCountdown(canvas, puck) {
+  let ctx = canvas.getContext('2d');
+  let time = Math.round(puck.resetTime/1000);
+  ctx.font = '24px Arial';
+  ctx.fillStyle = 'white';
+  ctx.fillText(time, canvas.width/2, canvas.height/2);
 }
 
 function toggleFullscreen() {

@@ -146,7 +146,7 @@ function consumableCollisionDetection(puck, consumables) {
 }
 
 function speedDotEffect(puck) {
-    increaseSpeed(puck, 5); // Increase puck speed by 5%.
+    increaseSpeed(puck, 15); // Increase puck speed by 15%.
 }
 
 function bombEffect(puck) {
@@ -207,7 +207,7 @@ function resetPuck(puck, speed, overlay) {
     puck.y = overlay.height/2
     puck.velX = initialVelocity.x;
     puck.velY = initialVelocity.y;
-    puck.resetTime = 500;
+    puck.resetTime = 750;
 }
 
 function increaseSpeed(puck, percentIncrease) {

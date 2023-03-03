@@ -54,7 +54,7 @@ function game() {
       2: { x: canvas2.width/2, y: overlay.height-80, color: "blue", length: paddleLength, width: paddleWidth }
     }
     let initialVelocity = getHalfRandomVelocities(initialSpeed);
-    puck = { x: overlay.width/2, y: overlay.height/2, velX: initialVelocity.x, velY: initialVelocity.y, r: puckRadius, resetTime: 1000 };
+    puck = { x: overlay.width/2, y: overlay.height/2, velX: initialVelocity.x, velY: initialVelocity.y, r: puckRadius, resetTime: 3500 };
     timers = { speedDot: speedDotSpawnTime, bomb: bombSpawnTime };
     score.newRender = true;
   }
@@ -104,6 +104,8 @@ function game() {
 
   function update(elapsedTime) {
     let scorePoint = updatePuck(overlay, elapsedTime, puck, paddle, consumables);
+
+    // Update scores when necessary.
     if (scorePoint[0] === true) {
       if (scorePoint[1] === 1) {
         score.player1 += 1;
@@ -118,28 +120,38 @@ function game() {
       timers.speedDot = speedDotSpawnTime;
       timers.bomb = bombSpawnTime;
     }
-    timers.speedDot -= elapsedTime;
-    timers.bomb -= elapsedTime;
-    if (timers.speedDot < 0) {
-      createConsumable("speedDot");
-      timers.speedDot = speedDotSpawnTime;
-    }
-    if (timers.bomb < 0) {
-      createConsumable("bomb");
-      timers.bomb = bombSpawnTime;
-    }
 
+    // Update conmsumable spawn timers.
+    if (puck.resetTime <= 0) {
+      timers.speedDot -= elapsedTime;
+      if (timers.speedDot < 0) {
+        createConsumable("speedDot");
+        timers.speedDot = speedDotSpawnTime;
+      }
+      timers.bomb -= elapsedTime;
+      if (timers.bomb < 0) {
+        createConsumable("bomb");
+        timers.bomb = bombSpawnTime;
+      }
+    }
     return false;
   }
 
   function render() {
+    // Render scores on player canvases.
     if (score.newRender) {
-      renderScores(canvas1, ctx1, canvas2, ctx2, score);
+      drawScores(canvas1, ctx1, canvas2, ctx2, score);
     }
+
+    // Render objects on the overlay canvas.
     ctxOver.clearRect(0, 0, overlay.width, overlay.height);
     drawPaddle(overlay, paddle[1]);
     drawPaddle(overlay, paddle[2]);
-    drawPuck(overlay, puck);
+    if (puck.resetTime <= 1000) {
+      drawPuck(overlay, puck);
+    } else {
+      drawCountdown(overlay, puck);
+    }
     for (let i = 0; i < consumables.speedDots.length; i++) {
       drawSpeedDot(overlay, consumables.speedDots[i]);
     }
