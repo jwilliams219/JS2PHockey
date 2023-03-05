@@ -16,9 +16,15 @@ function drawPaddle(canvas, paddle) { // Do I want to made the size dynamic on s
   let ctx = canvas.getContext("2d");
   ctx.beginPath();
   ctx.lineWidth = "2";
-  ctx.roundRect(paddle.x-(paddle.length/2), paddle.y-(paddle.width/2), paddle.length, paddle.width, paddle.width/2)
+  if (navigator.userAgent.indexOf("Firefox") != -1) {
+    ctx.rect(paddle.x-(paddle.length/2), paddle.y-(paddle.width/2), paddle.length, paddle.width);
+  } else {
+    ctx.roundRect(paddle.x-(paddle.length/2), paddle.y-(paddle.width/2), paddle.length, paddle.width, paddle.width/2)
+  }
   ctx.fillStyle = paddle.color;
   ctx.fill();
+  ctx.strokeStyle = 'white';
+  ctx.lineWidth = "2";
   ctx.stroke();
 }
 
@@ -34,12 +40,21 @@ function movePaddle(e, canvas, paddle) {
   paddle.x = x;
 }
 
-function drawSpeedDot(canvas, dot) {
+function loadRocketImg() {
+  let imgRocket = new Image();
+  imgRocket.isReady = false;
+  imgRocket.onload = function() {
+    this.isReady = true;
+  };
+  imgRocket.src = './images/rocket.png';
+  return imgRocket;
+}
+
+function drawRocket(canvas, rocket, img) {
   let ctx = canvas.getContext('2d');
-  ctx.beginPath();
-  ctx.arc(dot.x, dot.y, dot.r, 0, 2*Math.PI, false);
-  ctx.fillStyle = '#32CD32';
-  ctx.fill();
+  if (img.isReady) {
+    ctx.drawImage(img, rocket.x - 16, rocket.y - 17, 32, 34)
+  }
 }
 
 function loadBombImg() {
@@ -75,9 +90,9 @@ function drawScores(canvas1, ctx1, canvas2, ctx2, score) {
   score.newRender = false;
 }
 
-function drawCountdown(canvas, puck) {
+function drawCountdown(canvas, timers) {
   let ctx = canvas.getContext('2d');
-  let time = Math.round(puck.resetTime/1000);
+  let time = Math.round(timers.resetTime/1000);
   ctx.font = '24px Arial';
   ctx.fillStyle = 'white';
   ctx.fillText(time, canvas.width/2, canvas.height/2);

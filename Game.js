@@ -1,10 +1,10 @@
-// v1
+// v1.1
 'use strict';
 
 
 function game() {
   var prevTime;
-  var gameTime;
+  var timeSinceScore;
   var initialSpeed;
   var timers = {};
   var paddle = {};
@@ -23,16 +23,19 @@ function game() {
   const puckRadius = 15;
   const paddleLength = 100;
   const paddleWidth = 16;
-  const speedDotSpawnTime = 3000;
-  const bombSpawnTime = 8000;
-  const bombImageRes = [200, 241];
+  const bombSpawnTime = 6500;
+  const rocketSpawnTime = 5000;
+  //const bombImageRes = [200, 241];
+  //const rocketImageRes = [162, 171];
   var imgBomb;
+  var imgRocket;
+  var lastSpeedIncrease;
 
   function createConsumable(consumable) {
     let randomX = getRandomInt(50, overlay.width - 50);
     let randomY = getRandomInt(overlay.height/4, overlay.height*3/4);
-    if (consumable === "speedDot") {
-      consumables.speedDots.push({ x: randomX, y: randomY, r: puckRadius/3 })
+    if (consumable === "rocket") {
+      consumables.rockets.push({ x: randomX, y: randomY, r: puckRadius })
     } else if (consumable === "bomb") {
       consumables.bombs.push({ x: randomX, y: randomY, r: puckRadius })
     }
@@ -53,9 +56,9 @@ function game() {
       1: { x: canvas1.width/2, y: 80, color: "red", length: paddleLength, width: paddleWidth },
       2: { x: canvas2.width/2, y: overlay.height-80, color: "blue", length: paddleLength, width: paddleWidth }
     }
-    let initialVelocity = getHalfRandomVelocities(initialSpeed);
-    puck = { x: overlay.width/2, y: overlay.height/2, velX: initialVelocity.x, velY: initialVelocity.y, r: puckRadius, resetTime: 3500 };
-    timers = { speedDot: speedDotSpawnTime, bomb: bombSpawnTime };
+    puck = { x: overlay.width/2, y: overlay.height/2, velX: 0, velY: 0, r: puckRadius };
+    setHalfRandomVelocities(puck, initialSpeed); // Set intitial velX, velY
+    timers = { resetTime: 3500, bomb: bombSpawnTime, bombExpireTime: 0, rocket: rocketSpawnTime, rocketEffectOn: false };
     score.newRender = true;
   }
 
@@ -65,23 +68,25 @@ function game() {
     adjustGameToWindowSize();
 
     score = { player1: 0, player2: 0, newRender: true };
-    consumables = { bombs: [], speedDots: [] };
+    consumables = { bombs: [], rockets: [] };
     imgBomb = loadBombImg();
+    imgRocket = loadRocketImg();
 
     canvas1.addEventListener('touchstart', (e) => movePaddle(e, canvas1, paddle[1]));
     canvas2.addEventListener('touchstart', (e) => movePaddle(e, canvas2, paddle[2]));
     canvas1.addEventListener('touchmove', (e) => movePaddle(e, canvas1, paddle[1]));
     canvas2.addEventListener('touchmove', (e) => movePaddle(e, canvas2, paddle[2]));
     
-    gameTime = 0;
+    timeSinceScore = 0;
+    lastSpeedIncrease = 0;
     prevTime = performance.now();
     gameLoop(performance.now());
   }
   
   function gameLoop(time) {
     let elapsedTime = time - prevTime;
-    gameTime += elapsedTime;
     //console.log(elapsedTime);
+    //console.log(Math.sqrt(puck.velX**2 + puck.velY**2));
     prevTime = time;
 
     let domRect = overlay.getBoundingClientRect();
@@ -103,7 +108,8 @@ function game() {
   }
 
   function update(elapsedTime) {
-    let scorePoint = updatePuck(overlay, elapsedTime, puck, paddle, consumables);
+    timeSinceScore += elapsedTime;
+    let scorePoint = updatePuck(overlay, puck, paddle, consumables, timers, elapsedTime, initialSpeed);
 
     // Update scores when necessary.
     if (scorePoint[0] === true) {
@@ -113,20 +119,22 @@ function game() {
         score.player2 += 1;
       }
       score.newRender = true;
-      resetPuck(puck, initialSpeed, overlay);
+      resetPuck(overlay, puck, timers, initialSpeed, score);
       if (score.player1 === 7 || score.player2 === 7) {
         return true;
       }
-      timers.speedDot = speedDotSpawnTime;
+      timers.rocket = rocketSpawnTime;
       timers.bomb = bombSpawnTime;
+      timeSinceScore = 0;
+      lastSpeedIncrease = 0;
     }
 
     // Update conmsumable spawn timers.
-    if (puck.resetTime <= 0) {
-      timers.speedDot -= elapsedTime;
-      if (timers.speedDot < 0) {
-        createConsumable("speedDot");
-        timers.speedDot = speedDotSpawnTime;
+    if (timers.resetTime <= 0) {
+      timers.rocket -= elapsedTime;
+      if (timers.rocket < 0) {
+        createConsumable("rocket");
+        timers.rocket = rocketSpawnTime;
       }
       timers.bomb -= elapsedTime;
       if (timers.bomb < 0) {
@@ -134,6 +142,13 @@ function game() {
         timers.bomb = bombSpawnTime;
       }
     }
+
+    // Increase puck speed after time.
+    if (Math.floor(timeSinceScore/1000) > lastSpeedIncrease) {
+      lastSpeedIncrease = Math.floor(timeSinceScore/1000) + 1;
+      increaseSpeedPercent(puck, 0.5);
+    }
+
     return false;
   }
 
@@ -147,13 +162,13 @@ function game() {
     ctxOver.clearRect(0, 0, overlay.width, overlay.height);
     drawPaddle(overlay, paddle[1]);
     drawPaddle(overlay, paddle[2]);
-    if (puck.resetTime <= 1000) {
+    if (timers.resetTime <= 1000) {
       drawPuck(overlay, puck);
     } else {
-      drawCountdown(overlay, puck);
+      drawCountdown(overlay, timers);
     }
-    for (let i = 0; i < consumables.speedDots.length; i++) {
-      drawSpeedDot(overlay, consumables.speedDots[i]);
+    for (let i = 0; i < consumables.rockets.length; i++) {
+      drawRocket(overlay, consumables.rockets[i], imgRocket);
     }
     for (let i = 0; i < consumables.bombs.length; i++) {
       drawBomb(overlay, consumables.bombs[i], imgBomb);

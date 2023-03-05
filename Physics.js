@@ -33,10 +33,12 @@ function checkRoundEdgeCollision(puck, x, y, r) {
         puck.velY = Math.sin(angleFromPaddle)*currentSpeed;
         puck.x = Math.cos(angleFromPaddle)*overlap + puck.x;
         puck.y = Math.sin(angleFromPaddle)*overlap + puck.y;
+        return true;
     }
+    return false;
 }
 
-function collisionDetection(puck, paddle, overlay) {
+function collisionDetectionHandling(puck, paddle, overlay) {
     // Address wall collisions.
     if (puck.x-puck.r < 0) {
         let overlap = -1*(0 - (puck.x - puck.r));
@@ -48,6 +50,7 @@ function collisionDetection(puck, paddle, overlay) {
         puck.velX = -1*puck.velX;
     }
 
+    let paddleCollision = false;
     // Address paddle collisions.
     let p1 = paddle[1];
     let p2 = paddle[2];
@@ -63,11 +66,13 @@ function collisionDetection(puck, paddle, overlay) {
             let overlap = p1Bottom - (puck.y - puck.r);
             puck.y = p1Bottom + overlap + puck.r;
             puck.velY = -1 * puck.velY;
+            puck.velX += Math.random() > 0.5 ? Math.random() : -1*Math.random() // Paddles hit slightly to side on flat collision
+            paddleCollision = true;
         }
         // Check collision with either rounded edge.
         else {
-            checkRoundEdgeCollision(puck, leftRadiusCenterX, p1.y, p1.width/2);
-            checkRoundEdgeCollision(puck, rightRadiusCenterX, p1.y, p1.width/2);
+            paddleCollision = checkRoundEdgeCollision(puck, leftRadiusCenterX, p1.y, p1.width/2);
+            paddleCollision = checkRoundEdgeCollision(puck, rightRadiusCenterX, p1.y, p1.width/2);
             
             // Address wall collisions again. This(and one below) might not be completely necessary?
             if (puck.x-puck.r < 0) {
@@ -93,11 +98,13 @@ function collisionDetection(puck, paddle, overlay) {
             let overlap = puck.y + puck.r - p2Top;
             puck.y = p2Top - overlap - puck.r;
             puck.velY = -1 * puck.velY;
+            puck.velX += Math.random() > 0.5 ? Math.random() : -1*Math.random() // Paddles hit slightly to side on flat collision
+            paddleCollision = true;
         }
         // Collision with rounded edge
         else {
-            checkRoundEdgeCollision(puck, leftRadiusCenterX, p2.y, p2.width/2);
-            checkRoundEdgeCollision(puck, rightRadiusCenterX, p2.y, p2.width/2);
+            paddleCollision = checkRoundEdgeCollision(puck, leftRadiusCenterX, p2.y, p2.width/2);
+            paddleCollision = checkRoundEdgeCollision(puck, rightRadiusCenterX, p2.y, p2.width/2);
             
             // Address wall collisions again.
             if (puck.x-puck.r < 0) {
@@ -111,65 +118,87 @@ function collisionDetection(puck, paddle, overlay) {
             }
         }
     }
+    return paddleCollision;
 }
 
-function consumableCollisionDetection(puck, consumables) {
-    let dotCollisions = [];
+function consumableCollisionDetection(puck, consumables, timers) {
+    let rocketCollisions = [];
     let bombCollisions = [];
-    let speedDots = consumables.speedDots;
+    let rockets = consumables.rockets;
     let bombs = consumables.bombs;
 
-    // Speed Up dots
-    for (let i = 0; i < speedDots.length; i++) {
-        if (distanceBetweenPoints(puck.x, puck.y, speedDots[i].x, speedDots[i].y) < speedDots[i].r + puck.r) {
-            dotCollisions.push(i);
-            speedDotEffect(puck);
+    // Rockets
+    for (let i = 0; i < rockets.length; i++) {
+        if (distanceBetweenPoints(puck.x, puck.y, rockets[i].x, rockets[i].y) < rockets[i].r + puck.r) {
+            rocketCollisions.push(i);
+            rocketEffect(puck, timers);
         }
     }
     // Bombs
     for (let i = 0; i < bombs.length; i++) {
         if (distanceBetweenPoints(puck.x, puck.y, bombs[i].x, bombs[i].y) < bombs[i].r + puck.r) {
             bombCollisions.push(i);
-            bombEffect(puck);
+            bombEffect(puck, timers);
         }
     }
 
     // Remove consumable after effect.
-    dotCollisions = dotCollisions.reverse();
+    rocketCollisions = rocketCollisions.reverse();
     bombCollisions = bombCollisions.reverse();
-    for (let i = 0; i < dotCollisions.length; i++) {
-        speedDots.splice(dotCollisions[i], 1);
+    for (let i = 0; i < rocketCollisions.length; i++) {
+        rockets.splice(rocketCollisions[i], 1);
     }
     for (let i = 0; i < bombCollisions.length; i++) {
         bombs.splice(bombCollisions[i], 1);
     }
 }
 
-function speedDotEffect(puck) {
-    increaseSpeed(puck, 15); // Increase puck speed by 15%.
-}
+function rocketEffect(puck, timers) {
+    timers.resetTime = 100; // Pause for tenth of second to ignite rocket.
+    timers.rocketEffectOn = true;
+    increaseSpeedPercent(puck, 50); // Increase puck speed by 50%.
 
-function bombEffect(puck) {
-    puck.resetTime = 250; // Pause puck for a quarter second.
-    increaseSpeed(puck, 50); // Increase puck speed by 50%.
-
-    // Get new random direction velocities based on speed, toward players sides.
-    const currentVelX = puck.velX;
-    const currentVelY = puck.velY;
-    const currentSpeed = Math.sqrt(Math.pow(currentVelX, 2) + Math.pow(currentVelY, 2));
-    const newVelocities = getHalfRandomVelocities(currentSpeed);
-    puck.velX = newVelocities.x;
-    puck.velY = newVelocities.y;
-}
-
-function updatePuck(overlay, elapsedTime, puck, paddle, consumables) {
-    if (puck.resetTime > 0) {
-        puck.resetTime = puck.resetTime - elapsedTime;
+    // Get new random direction velocities based on speed, toward other players side.
+    const currentSpeed = Math.sqrt(puck.velX**2 + puck.velY**2);
+    if (puck.velY > 0) {
+        setRandomVelocities(puck, currentSpeed, 45, 135);
     } else {
+        setRandomVelocities(puck, currentSpeed, 225, 315);
+    }
+}
+
+function bombEffect(puck, timers) {
+    timers.resetTime = 250; // Pause puck for a quarter second.
+    timers.bombExpireTime = 3000; // Effect lasts for 3 seconds.
+    increaseSpeedPercent(puck, 50); // Increase puck speed by 50%.
+
+    // Get new random direction velocities based on speed, toward last players own side.
+    const currentSpeed = Math.sqrt(puck.velX**2 + puck.velY**2);
+    if (puck.velY > 0) {
+        setRandomVelocities(puck, currentSpeed, 225, 315);
+    } else {
+        setRandomVelocities(puck, currentSpeed, 45, 135);
+    }
+}
+
+function updatePuck(overlay, puck, paddle, consumables, timers, elapsedTime, initialSpeed) {
+    if (timers.resetTime > 0) {
+        timers.resetTime -= elapsedTime;
+    } else {
+        if (timers.bombExpireTime > 0) {
+            timers.bombExpireTime -= elapsedTime;
+        } else if (timers.bombExpireTime < 0) {
+            timers.bombExpireTime = 0;
+            reverseSpeedIncreasePercent(puck, 50); // Decrease pucks speed by 50% after consumable is worn off.
+        }
         puck.x = puck.x + (puck.velX*elapsedTime/1000);
         puck.y = puck.y + (puck.velY*elapsedTime/1000);
-        collisionDetection(puck, paddle, overlay);
-        consumableCollisionDetection(puck, consumables);
+        consumableCollisionDetection(puck, consumables, timers);
+        let paddleCollision = collisionDetectionHandling(puck, paddle, overlay);
+        if (timers.rocketEffectOn && paddleCollision) { 
+            timers.rocketEffectOn = false; 
+            reverseSpeedIncreasePercent(puck, 50);
+        }
     }
     return pointDetection(puck, overlay);
 }
@@ -180,43 +209,52 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random()*(max - min) + min);
 }
 
-// Get random direction velocities that add up to the given speed.
-function getRandomDirectionVelocities(speed) {
-    const direction = Math.random()*2*Math.PI;
-    const velX = Math.cos(direction)*speed;
-    const velY = Math.sin(direction)*speed;
-    return {"x": velX, "y": velY};
+// Get random direction velocities that add up to the given speed between degree min, max.
+function setRandomVelocities(puck, speed, min, max) {
+    const direction = getRandomInt(min, max)*Math.PI/180;
+    puck.velX = Math.cos(direction)*speed;
+    puck.velY = Math.sin(direction)*speed;
 }
 
 // Get random direction velocities that can be within 45 degrees of each players direction.
-function getHalfRandomVelocities(speed) {
+function setHalfRandomVelocities(puck, speed) {
     if (Math.random() < 0.5) {
         var degrees = getRandomInt(45, 135);
     } else {
         var degrees = getRandomInt(225, 315);
     }
     const direction = degrees*Math.PI/180;
-    const velX = Math.cos(direction)*speed;
-    const velY = Math.sin(direction)*speed;
-    return {"x": velX, "y": velY};
+    puck.velX = Math.cos(direction)*speed;
+    puck.velY = Math.sin(direction)*speed;
 }
 
-function resetPuck(puck, speed, overlay) {
-    let initialVelocity = getHalfRandomVelocities(speed);
+function resetPuck(overlay, puck, timers, speed, score) {
+    speed *= 1 + 0.04 * (score.player1 + score.player2); // Speed increases slightly each round.
+    setHalfRandomVelocities(puck, speed);
     puck.x = overlay.width/2;
     puck.y = overlay.height/2
-    puck.velX = initialVelocity.x;
-    puck.velY = initialVelocity.y;
-    puck.resetTime = 750;
+    timers.resetTime = 750;
+    timers.bombExpireTime = 0;
 }
 
-function increaseSpeed(puck, percentIncrease) {
-    const currentVelX = puck.velX;
-    const currentVelY = puck.velY;
-    const currentSpeed = Math.sqrt(Math.pow(currentVelX, 2) + Math.pow(currentVelY, 2));
+function increaseSpeedPercent(puck, percentIncrease) {
+    const currentSpeed = Math.sqrt(puck.velX**2 + puck.velY**2);
     const newSpeed = currentSpeed * (1 + percentIncrease/100);
-    const newVelX = (newSpeed / currentSpeed) * currentVelX;
-    const newVelY = (newSpeed / currentSpeed) * currentVelY;
-    puck.velX = newVelX;
-    puck.velY = newVelY;
+    puck.velX  = (newSpeed / currentSpeed) * puck.velX;
+    puck.velY = (newSpeed / currentSpeed) * puck.velY;
+}
+
+function increaseSpeedFromInitial(puck, initialSpeed, percentIncrease) {
+    const currentSpeed = Math.sqrt(puck.velX**2 + puck.velY**2);
+    const newSpeed = currentSpeed + (initialSpeed * percentIncrease / 100);
+    puck.velX = (newSpeed / currentSpeed) * puck.velX;
+    puck.velY = (newSpeed / currentSpeed) * puck.velY;
+}
+
+function reverseSpeedIncreasePercent(puck, percentIncrease) {
+    const currentSpeed = Math.sqrt(puck.velX ** 2 + puck.velY ** 2);
+    const newSpeed = currentSpeed / (1 + percentIncrease / 100);
+    const speedRatio = newSpeed / currentSpeed;
+    puck.velX = puck.velX * speedRatio;
+    puck.velY = puck.velY * speedRatio;
 }
