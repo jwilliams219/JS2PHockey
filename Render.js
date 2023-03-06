@@ -1,5 +1,8 @@
 'use strict';
 
+//const bombImageRes = [200, 241];
+//const rocketImageRes = [162, 171];
+
 
 function drawPuck(canvas, puck) {
   let ctx = canvas.getContext('2d');

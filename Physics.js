@@ -1,5 +1,11 @@
-'use strict'
+'use strict';
 
+
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random()*(max - min) + min);
+}
 
 function distanceBetweenPoints(x1, y1, x2, y2) {
     let deltaX = x2 - x1;
@@ -11,15 +17,6 @@ function getAngle(x1, y1, x2, y2) {
     const dx = x2 - x1;
     const dy = y2 - y1;
     return Math.atan2(dy, dx);
-}
-
-function pointDetection(puck, overlay) {
-    if (puck.y - puck.r < 0) {
-        return [true, 2];
-    } else if (puck.y + puck.r > overlay.height) {
-        return [true, 1];
-    }
-    return [false, 0];
 }
 
 // Calculate if intersection between puck and paddle circles, then address collision.
@@ -38,7 +35,7 @@ function checkRoundEdgeCollision(puck, x, y, r) {
     return false;
 }
 
-function collisionDetectionHandling(puck, paddle, overlay) {
+function collisionDetectionHandling(puck, paddle, overlay, timers) {
     // Address wall collisions.
     if (puck.x-puck.r < 0) {
         let overlap = -1*(0 - (puck.x - puck.r));
@@ -118,7 +115,18 @@ function collisionDetectionHandling(puck, paddle, overlay) {
             }
         }
     }
-    return paddleCollision;
+    if (paddleCollision) {
+        endRocketEffects(puck, timers);
+    }
+}
+
+function endRocketEffects(puck, timers) {
+    if (timers.rocketEffectCount > 0) { // Rocket effects only last until it hits paddle.
+        for (let i = 0; i < timers.rocketEffectCount; i++) {
+            reverseSpeedIncreasePercent(puck, 50);
+        }
+        timers.rocketEffectCount = 0; 
+    }
 }
 
 function consumableCollisionDetection(puck, consumables, timers) {
@@ -155,7 +163,7 @@ function consumableCollisionDetection(puck, consumables, timers) {
 
 function rocketEffect(puck, timers) {
     timers.resetTime = 100; // Pause for tenth of second to ignite rocket.
-    timers.rocketEffectOn = true;
+    timers.rocketEffectCount += 1;
     increaseSpeedPercent(puck, 50); // Increase puck speed by 50%.
 
     // Get new random direction velocities based on speed, toward other players side.
@@ -181,34 +189,6 @@ function bombEffect(puck, timers) {
     }
 }
 
-function updatePuck(overlay, puck, paddle, consumables, timers, elapsedTime, initialSpeed) {
-    if (timers.resetTime > 0) {
-        timers.resetTime -= elapsedTime;
-    } else {
-        if (timers.bombExpireTime > 0) {
-            timers.bombExpireTime -= elapsedTime;
-        } else if (timers.bombExpireTime < 0) {
-            timers.bombExpireTime = 0;
-            reverseSpeedIncreasePercent(puck, 50); // Decrease pucks speed by 50% after consumable is worn off.
-        }
-        puck.x = puck.x + (puck.velX*elapsedTime/1000);
-        puck.y = puck.y + (puck.velY*elapsedTime/1000);
-        consumableCollisionDetection(puck, consumables, timers);
-        let paddleCollision = collisionDetectionHandling(puck, paddle, overlay);
-        if (timers.rocketEffectOn && paddleCollision) { 
-            timers.rocketEffectOn = false; 
-            reverseSpeedIncreasePercent(puck, 50);
-        }
-    }
-    return pointDetection(puck, overlay);
-}
-
-function getRandomInt(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random()*(max - min) + min);
-}
-
 // Get random direction velocities that add up to the given speed between degree min, max.
 function setRandomVelocities(puck, speed, min, max) {
     const direction = getRandomInt(min, max)*Math.PI/180;
@@ -228,15 +208,6 @@ function setHalfRandomVelocities(puck, speed) {
     puck.velY = Math.sin(direction)*speed;
 }
 
-function resetPuck(overlay, puck, timers, speed, score) {
-    speed *= 1 + 0.04 * (score.player1 + score.player2); // Speed increases slightly each round.
-    setHalfRandomVelocities(puck, speed);
-    puck.x = overlay.width/2;
-    puck.y = overlay.height/2
-    timers.resetTime = 750;
-    timers.bombExpireTime = 0;
-}
-
 function increaseSpeedPercent(puck, percentIncrease) {
     const currentSpeed = Math.sqrt(puck.velX**2 + puck.velY**2);
     const newSpeed = currentSpeed * (1 + percentIncrease/100);
@@ -244,9 +215,9 @@ function increaseSpeedPercent(puck, percentIncrease) {
     puck.velY = (newSpeed / currentSpeed) * puck.velY;
 }
 
-function increaseSpeedFromInitial(puck, initialSpeed, percentIncrease) {
+function increaseSpeedFromInitial(puck, percentIncrease) {
     const currentSpeed = Math.sqrt(puck.velX**2 + puck.velY**2);
-    const newSpeed = currentSpeed + (initialSpeed * percentIncrease / 100);
+    const newSpeed = currentSpeed + (puck.initialSpeed * percentIncrease / 100);
     puck.velX = (newSpeed / currentSpeed) * puck.velX;
     puck.velY = (newSpeed / currentSpeed) * puck.velY;
 }
