@@ -2,7 +2,7 @@
 
 
 // Update scores when necessary.
-function updateScore(scorePoint, score, overlay, puck, timers) {
+function updateScore(overlay, scorePoint, score, puck, timers) {
     if (scorePoint[0] === true) {
         if (scorePoint[1] === 1) {
           score.player1 += 1;

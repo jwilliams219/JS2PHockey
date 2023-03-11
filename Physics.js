@@ -48,10 +48,9 @@ function collisionDetectionHandling(puck, paddle, overlay, timers) {
     }
 
     let paddleCollision = false;
-    // Address paddle collisions.
-    let p1 = paddle[1];
-    let p2 = paddle[2];
 
+    // Address paddle 1 collisions.
+    let p1 = paddle[1];
     let p1Bottom = p1.y + (p1.width/2);
     let p1Top = p1.y - (p1.width/2);
     if (puck.y - puck.r < p1Bottom && puck.y + puck.r > p1Top && 
@@ -63,7 +62,7 @@ function collisionDetectionHandling(puck, paddle, overlay, timers) {
             let overlap = p1Bottom - (puck.y - puck.r);
             puck.y = p1Bottom + overlap + puck.r;
             puck.velY = -1 * puck.velY;
-            puck.velX += Math.random() > 0.5 ? Math.random() : -1*Math.random() // Paddles hit slightly to side on flat collision
+            puck.velX += puck.x > p1.x ? Math.random()*10 : -1*Math.random()*10 // Paddles hit slightly to side on flat collision
             paddleCollision = true;
         }
         // Check collision with either rounded edge.
@@ -84,6 +83,8 @@ function collisionDetectionHandling(puck, paddle, overlay, timers) {
         }
     }
 
+    // Address paddle 2 collisions.
+    let p2 = paddle[2];
     let p2Bottom = p2.y + (p2.width/2);
     let p2Top = p2.y - (p2.width/2);
     if (puck.y - puck.r < p2Bottom && puck.y + puck.r > p2Top && 
@@ -95,7 +96,7 @@ function collisionDetectionHandling(puck, paddle, overlay, timers) {
             let overlap = puck.y + puck.r - p2Top;
             puck.y = p2Top - overlap - puck.r;
             puck.velY = -1 * puck.velY;
-            puck.velX += Math.random() > 0.5 ? Math.random() : -1*Math.random() // Paddles hit slightly to side on flat collision
+            puck.velX += puck.x > p2.x ? Math.random()*10 : -1*Math.random()*10 // Paddles hit slightly to side on flat collision
             paddleCollision = true;
         }
         // Collision with rounded edge

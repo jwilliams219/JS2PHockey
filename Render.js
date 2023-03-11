@@ -77,7 +77,11 @@ function drawBomb(canvas, bomb, img) {
   }
 }
 
-function drawScores(canvas1, ctx1, canvas2, ctx2, score) {
+function drawScores(canvas, score) {
+  const canvas1 = canvas.canvas1;
+  const ctx1 = canvas.ctx1;
+  const canvas2 = canvas.canvas2;
+  const ctx2 = canvas.ctx2;
   ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
   ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
   ctx1.font = '20px Arial';

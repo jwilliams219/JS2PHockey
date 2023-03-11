@@ -10,30 +10,25 @@ function game() {
   var consumables = {};
   var score = {};
   var window = {};
-  const canvas1 = document.getElementById("canvas1");
-  const canvas2 = document.getElementById("canvas2");
-  const overlay = document.getElementById("overlay");
-  const ctx1 = canvas1.getContext('2d');
-  const ctx2 = canvas2.getContext('2d');
-  const ctxOver = overlay.getContext('2d');
-  const p1 = document.getElementById("p1");
-  const p2 = document.getElementById("p2");
+  var canvas = {};
 
   function adjustGameToWindowSize() {
-    let domRect1 = p1.getBoundingClientRect();
-    let domRect2 = p2.getBoundingClientRect();
-    canvas1.height = domRect1["height"];
-    canvas1.width = domRect1["width"];
-    canvas2.height = domRect2["height"];
-    canvas2.width = domRect2["width"];
-    overlay.height = domRect1["height"]*2;
-    overlay.width = domRect1["width"];
+    const p1 = document.getElementById("p1");
+    const p2 = document.getElementById("p2");
+    const domRect1 = p1.getBoundingClientRect();
+    const domRect2 = p2.getBoundingClientRect();
+    canvas.canvas1.height = domRect1["height"];
+    canvas.canvas1.width = domRect1["width"];
+    canvas.canvas2.height = domRect2["height"];
+    canvas.canvas2.width = domRect2["width"];
+    canvas.overlay.height = domRect1["height"]*2;
+    canvas.overlay.width = domRect1["width"];
 
     paddles = {
-      1: { x: canvas1.width/2, y: 80, color: "red", length: 100, width: 16 },
-      2: { x: canvas2.width/2, y: overlay.height-80, color: "blue", length: 100, width: 16 }
+      1: { x: canvas.canvas1.width/2, y: 80, color: "red", length: 100, width: 16 },
+      2: { x: canvas.canvas2.width/2, y: canvas.overlay.height-80, color: "blue", length: 100, width: 16 }
     }
-    puck = { x: overlay.width/2, y: overlay.height/2, velX: 0, velY: 0, r: 15, initialSpeed: overlay.height/3 };
+    puck = { x: canvas.overlay.width/2, y: canvas.overlay.height/2, velX: 0, velY: 0, r: 15, initialSpeed: canvas.overlay.height/3 };
     setHalfRandomVelocities(puck, puck.initialSpeed); // Set intitial velX, velY
     
     timers = { resetTime: 3500, bomb: 6500, totalBombSpawnTime: 6500, bombExpireTime: 0, rocket: 5000, 
@@ -42,17 +37,24 @@ function game() {
   }
 
   function initializeGame() {
-    let domRect = overlay.getBoundingClientRect();
+    canvas.canvas1 = document.getElementById("canvas1");
+    canvas.canvas2 = document.getElementById("canvas2");
+    canvas.overlay = document.getElementById("overlay");
+    canvas.ctx1 = canvas.canvas1.getContext('2d');
+    canvas.ctx2 = canvas.canvas2.getContext('2d');
+    canvas.ctxOver = canvas.overlay.getContext('2d');
+
+    let domRect = canvas.overlay.getBoundingClientRect();
     window = { height: domRect["height"], width: domRect["width"] };
     adjustGameToWindowSize();
 
     score = { player1: 0, player2: 0, newRender: true };
     consumables = { bombs: [], rockets: [], imgBomb: loadBombImg(), imgRocket: loadRocketImg() };
 
-    canvas1.addEventListener('touchstart', (e) => movePaddle(e, canvas1, paddles[1]));
-    canvas2.addEventListener('touchstart', (e) => movePaddle(e, canvas2, paddles[2]));
-    canvas1.addEventListener('touchmove', (e) => movePaddle(e, canvas1, paddles[1]));
-    canvas2.addEventListener('touchmove', (e) => movePaddle(e, canvas2, paddles[2]));
+    canvas.canvas1.addEventListener('touchstart', (e) => movePaddle(e, canvas.canvas1, paddles[1]));
+    canvas.canvas2.addEventListener('touchstart', (e) => movePaddle(e, canvas.canvas2, paddles[2]));
+    canvas.canvas1.addEventListener('touchmove', (e) => movePaddle(e, canvas.canvas1, paddles[1]));
+    canvas.canvas2.addEventListener('touchmove', (e) => movePaddle(e, canvas.canvas2, paddles[2]));
     
     prevTime = performance.now();
     gameLoop(performance.now());
@@ -65,7 +67,7 @@ function game() {
     //console.log(elapsedTime);
     //console.log(Math.sqrt(puck.velX**2 + puck.velY**2)); // Print puck speed
 
-    let domRect = overlay.getBoundingClientRect();
+    let domRect = canvas.overlay.getBoundingClientRect();
     if (domRect["height"] !== window.height || domRect["width"] !== window.width) {
       adjustGameToWindowSize();
       window.height = domRect["height"];
@@ -85,10 +87,10 @@ function game() {
 
   function update(elapsedTime) {
     // Main physics update.
-    let scorePoint = updatePuck(overlay, puck, paddles, consumables, timers, elapsedTime);
+    let scorePoint = updatePuck(canvas.overlay, puck, paddles, consumables, timers, elapsedTime);
 
     // Update if player has scored.
-    let gameIsOver = updateScore(scorePoint, score, overlay, puck, timers);
+    let gameIsOver = updateScore(canvas.overlay, scorePoint, score, puck, timers);
 
     // Update conmsumable spawn timers.
     updateConsumableTimers(consumables, timers, elapsedTime);
@@ -102,23 +104,23 @@ function game() {
   function render() {
     // Render scores on player canvases.
     if (score.newRender) {
-      drawScores(canvas1, ctx1, canvas2, ctx2, score);
+      drawScores(canvas, score);
     }
 
     // Render objects on the overlay canvas.
-    ctxOver.clearRect(0, 0, overlay.width, overlay.height);
-    drawPaddle(overlay, paddles[1]);
-    drawPaddle(overlay, paddles[2]);
+    canvas.ctxOver.clearRect(0, 0, canvas.overlay.width, canvas.overlay.height);
+    drawPaddle(canvas.overlay, paddles[1]);
+    drawPaddle(canvas.overlay, paddles[2]);
     if (timers.resetTime <= 1000) {
-      drawPuck(overlay, puck);
+      drawPuck(canvas.overlay, puck);
     } else {
-      drawCountdown(overlay, timers);
+      drawCountdown(canvas.overlay, timers);
     }
     for (let i = 0; i < consumables.rockets.length; i++) {
-      drawRocket(overlay, consumables.rockets[i], consumables.imgRocket);
+      drawRocket(canvas.overlay, consumables.rockets[i], consumables.imgRocket);
     }
     for (let i = 0; i < consumables.bombs.length; i++) {
-      drawBomb(overlay, consumables.bombs[i], consumables.imgBomb);
+      drawBomb(canvas.overlay, consumables.bombs[i], consumables.imgBomb);
     }
   }
 
