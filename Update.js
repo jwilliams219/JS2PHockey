@@ -98,6 +98,18 @@ function resetPuck(overlay, puck, timers, score) {
     timers.rocketEffectCount = 0;
 }
 
+function movePaddle(e, canvas, paddle) {
+    let width = canvas.width;
+    let x = e.targetTouches[0].clientX;
+    if (x < paddle.length/2) {
+      x = paddle.length/2;
+    }
+    else if (x > width - paddle.length/2) {
+      x = width - paddle.length/2;
+    }
+    paddle.x = x;
+}
+
 function winner() {
     let start = startButton();
     if (start) {

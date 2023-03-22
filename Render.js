@@ -31,18 +31,6 @@ function drawPaddle(canvas, paddle) { // Do I want to made the size dynamic on s
   ctx.stroke();
 }
 
-function movePaddle(e, canvas, paddle) {
-  let width = canvas.width;
-  let x = e.targetTouches[0].clientX;
-  if (x < paddle.length/2) {
-    x = paddle.length/2;
-  }
-  else if (x > width - paddle.length/2) {
-    x = width - paddle.length/2;
-  }
-  paddle.x = x;
-}
-
 function loadRocketImg() {
   let imgRocket = new Image();
   imgRocket.isReady = false;
