@@ -11,6 +11,7 @@ function game() {
   var score = {};
   var window = {};
   var canvas = {};
+  var particles = [];
 
   function adjustGameToWindowSize() {
     const p1 = document.getElementById("p1");
@@ -49,7 +50,7 @@ function game() {
     adjustGameToWindowSize();
 
     score = { player1: 0, player2: 0, newRender: true };
-    consumables = { bombs: [], rockets: [], imgBomb: loadBombImg(), imgRocket: loadRocketImg() };
+    consumables = { bombs: [], rockets: [], imgBomb: graphics.loadBombImg(), imgRocket: graphics.loadRocketImg() };
 
     canvas.canvas1.addEventListener('touchstart', (e) => movePaddle(e, canvas.canvas1, paddles[1]));
     canvas.canvas2.addEventListener('touchstart', (e) => movePaddle(e, canvas.canvas2, paddles[2]));
@@ -87,13 +88,16 @@ function game() {
 
   function update(elapsedTime) {
     // Main physics update.
-    let scorePoint = updatePuck(canvas.overlay, puck, paddles, consumables, timers, elapsedTime);
+    let scorePoint = updatePuck(canvas.overlay, puck, paddles, consumables, particles, timers, elapsedTime);
 
     // Update if player has scored.
     let gameIsOver = updateScore(canvas.overlay, scorePoint, score, puck, timers);
 
     // Update conmsumable spawn timers.
     updateConsumableTimers(consumables, timers, elapsedTime);
+
+    // Update particles
+    updateParticles(particles, elapsedTime);
 
     // Slowly speed up the round over time.
     longGameSpeedUp(puck, timers);
@@ -104,24 +108,25 @@ function game() {
   function render() {
     // Render scores on player canvases.
     if (score.newRender) {
-      drawScores(canvas, score);
+      graphics.drawScores(canvas, score);
     }
 
     // Render objects on the overlay canvas.
     canvas.ctxOver.clearRect(0, 0, canvas.overlay.width, canvas.overlay.height);
-    drawPaddle(canvas.overlay, paddles[1]);
-    drawPaddle(canvas.overlay, paddles[2]);
+    graphics.drawPaddle(canvas.overlay, paddles[1]);
+    graphics.drawPaddle(canvas.overlay, paddles[2]);
     if (timers.resetTime <= 1000) {
-      drawPuck(canvas.overlay, puck);
+      graphics.drawPuck(canvas.overlay, puck);
     } else {
-      drawCountdown(canvas.overlay, timers);
+      graphics.drawCountdown(canvas.overlay, timers);
     }
-    for (let i = 0; i < consumables.rockets.length; i++) {
-      drawRocket(canvas.overlay, consumables.rockets[i], consumables.imgRocket);
+    for (let i = 0; i < consumables.rockets.length; i++) { // Put these for loops into the graphics functions.
+      graphics.drawRocket(canvas.overlay, consumables.rockets[i], consumables.imgRocket);
     }
     for (let i = 0; i < consumables.bombs.length; i++) {
-      drawBomb(canvas.overlay, consumables.bombs[i], consumables.imgBomb);
+      graphics.drawBomb(canvas.overlay, consumables.bombs[i], consumables.imgBomb);
     }
+    graphics.drawParticles(canvas.overlay, particles);
   }
 
   initializeGame();

@@ -67,7 +67,7 @@ function longGameSpeedUp(puck, timers) {
 }
 
 // Update the puck location, collisions, timers, consumables effects.
-function updatePuck(overlay, puck, paddle, consumables, timers, elapsedTime) {
+function updatePuck(overlay, puck, paddle, consumables, particles, timers, elapsedTime) {
     timers.timeSinceScore += elapsedTime;
     if (timers.resetTime > 0) {
         timers.resetTime -= elapsedTime;
@@ -81,7 +81,7 @@ function updatePuck(overlay, puck, paddle, consumables, timers, elapsedTime) {
         // Update the puck location and address collisions.
         puck.x = puck.x + (puck.velX*elapsedTime/1000);
         puck.y = puck.y + (puck.velY*elapsedTime/1000);
-        consumableCollisionDetection(puck, consumables, timers);
+        consumableCollisionDetection(puck, consumables, timers, particles);
         collisionDetectionHandling(puck, paddle, overlay, timers); // Main collision physics.
     }
     return pointDetection(puck, overlay);
@@ -118,4 +118,18 @@ function winner() {
       startButton.style.left = "35vw";
     }
     toggleFullscreen();
+}
+
+function toggleFullscreen() {
+  let game = document.getElementById("game");
+
+  if (!document.fullscreenElement) {
+    game.requestFullscreen().catch((err) => {
+      console.log(`Error attempting to enable fullscreen mode: ${err.message} (${err.name})`);
+    });
+  } else {
+    document.exitFullscreen();
+    document.getElementById("overlay").setAttribute("style", "touch-action: auto");
+  }
+  return "done";
 }

@@ -1,24 +1,6 @@
 'use strict';
 
 
-function getRandomInt(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random()*(max - min) + min);
-}
-
-function distanceBetweenPoints(x1, y1, x2, y2) {
-    let deltaX = x2 - x1;
-    let deltaY = y2 - y1;
-    return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-}
-
-function getAngle(x1, y1, x2, y2) {
-    const dx = x2 - x1;
-    const dy = y2 - y1;
-    return Math.atan2(dy, dx);
-}
-
 // Calculate if intersection between puck and paddle circles, then address collision.
 function checkRoundEdgeCollision(puck, x, y, r) {
     let distance = distanceBetweenPoints(puck.x, puck.y, x, y);
@@ -120,7 +102,7 @@ function endRocketEffects(puck, timers) {
     }
 }
 
-function consumableCollisionDetection(puck, consumables, timers) {
+function consumableCollisionDetection(puck, consumables, timers, particles) {
     let rocketCollisions = [];
     let bombCollisions = [];
     let rockets = consumables.rockets;
@@ -137,7 +119,7 @@ function consumableCollisionDetection(puck, consumables, timers) {
     for (let i = 0; i < bombs.length; i++) {
         if (distanceBetweenPoints(puck.x, puck.y, bombs[i].x, bombs[i].y) < bombs[i].r + puck.r) {
             bombCollisions.push(i);
-            bombEffect(puck, timers);
+            bombEffect(puck, timers, bombs[i], particles);
         }
     }
 
@@ -166,7 +148,7 @@ function rocketEffect(puck, timers) {
     }
 }
 
-function bombEffect(puck, timers) {
+function bombEffect(puck, timers, bomb, particles) {
     timers.resetTime = 250; // Pause puck for a quarter second.
     timers.bombExpireTime = 3000; // Effect lasts for 3 seconds.
     increaseSpeedPercent(puck, 50); // Increase puck speed by 50%.
@@ -178,6 +160,7 @@ function bombEffect(puck, timers) {
     } else {
         setRandomVelocities(puck, currentSpeed, 45, 135);
     }
+    createBombParticles(bomb, particles);
 }
 
 // Get random direction velocities that add up to the given speed between degree min, max.
