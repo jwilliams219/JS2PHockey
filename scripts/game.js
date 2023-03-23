@@ -29,11 +29,11 @@ function game() {
       1: { x: canvas.canvas1.width/2, y: 80, color: "red", length: 100, width: 16 },
       2: { x: canvas.canvas2.width/2, y: canvas.overlay.height-80, color: "blue", length: 100, width: 16 }
     }
-    puck = { x: canvas.overlay.width/2, y: canvas.overlay.height/2, velX: 0, velY: 0, r: 15, initialSpeed: canvas.overlay.height/3 };
+    puck = { x: canvas.overlay.width/2, y: canvas.overlay.height/2, velX: 0, velY: 0, r: 15, initialSpeed: canvas.overlay.height/3, color: '#202124' };
     setHalfRandomVelocities(puck, puck.initialSpeed); // Set intitial velX, velY
     
     timers = { resetTime: 3500, bomb: 6500, totalBombSpawnTime: 6500, bombExpireTime: 0, rocket: 5000, 
-      totalRocketSpawnTime: 5000, rocketEffectCount: 0, timeSinceScore: 0,  lastSpeedIncrease: 0 };
+      totalRocketSpawnTime: 5000, timeSinceScore: 0,  lastSpeedIncrease: 0 };
     score.newRender = true;
   }
 
@@ -50,7 +50,8 @@ function game() {
     adjustGameToWindowSize();
 
     score = { player1: 0, player2: 0, newRender: true };
-    consumables = { bombs: [], rockets: [], imgBomb: graphics.loadBombImg(), imgRocket: graphics.loadRocketImg() };
+    consumables = { bombs: [], rockets: [], imgBomb: graphics.loadBombImg(), imgRocket: graphics.loadRocketImg(), 
+      rocketEffectCount: 0, bombEffectCount: 0 };
 
     canvas.canvas1.addEventListener('touchstart', (e) => movePaddle(e, canvas.canvas1, paddles[1]));
     canvas.canvas2.addEventListener('touchstart', (e) => movePaddle(e, canvas.canvas2, paddles[2]));
@@ -91,12 +92,12 @@ function game() {
     let scorePoint = updatePuck(canvas.overlay, puck, paddles, consumables, particles, timers, elapsedTime);
 
     // Update if player has scored.
-    let gameIsOver = updateScore(canvas.overlay, scorePoint, score, puck, timers);
+    let gameIsOver = updateScore(canvas.overlay, scorePoint, score, puck, timers, consumables);
 
     // Update conmsumable spawn timers.
     updateConsumableTimers(consumables, timers, elapsedTime);
 
-    // Update particles
+    // Update particle animations
     updateParticles(particles, elapsedTime);
 
     // Slowly speed up the round over time.
@@ -115,6 +116,7 @@ function game() {
     canvas.ctxOver.clearRect(0, 0, canvas.overlay.width, canvas.overlay.height);
     graphics.drawPaddle(canvas.overlay, paddles[1]);
     graphics.drawPaddle(canvas.overlay, paddles[2]);
+    graphics.drawParticles(canvas.overlay, particles);
     if (timers.resetTime <= 1000) {
       graphics.drawPuck(canvas.overlay, puck);
     } else {
@@ -126,7 +128,6 @@ function game() {
     for (let i = 0; i < consumables.bombs.length; i++) {
       graphics.drawBomb(canvas.overlay, consumables.bombs[i], consumables.imgBomb);
     }
-    graphics.drawParticles(canvas.overlay, particles);
   }
 
   initializeGame();

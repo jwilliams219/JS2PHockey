@@ -17,7 +17,7 @@ function checkRoundEdgeCollision(puck, x, y, r) {
     return false;
 }
 
-function collisionDetectionHandling(puck, paddle, overlay, timers) {
+function collisionDetectionHandling(puck, paddle, overlay, consumables) {
     // Address wall collisions.
     if (puck.x-puck.r < 0) {
         let overlap = -1*(0 - (puck.x - puck.r));
@@ -88,18 +88,25 @@ function collisionDetectionHandling(puck, paddle, overlay, timers) {
             paddleCollision = checkRoundEdgeCollision(puck, rightRadiusCenterX, p2.y, p2.width/2);
         }
     }
-    if (paddleCollision) {
-        endRocketEffects(puck, timers);
+    if (paddleCollision && consumables.rocketEffectCount > 0) {
+        endRocketEffects(puck, consumables); 
     }
 }
 
-function endRocketEffects(puck, timers) {
-    if (timers.rocketEffectCount > 0) { // Rocket effects only last until it hits paddle.
-        for (let i = 0; i < timers.rocketEffectCount; i++) {
-            reverseSpeedIncreasePercent(puck, 50);
-        }
-        timers.rocketEffectCount = 0; 
+// Rocket effects only last until it hits paddle.
+function endRocketEffects(puck, consumables) {
+    for (let i = 0; i < consumables.rocketEffectCount; i++) {
+        reverseSpeedIncreasePercent(puck, 50);
     }
+    consumables.rocketEffectCount = 0;
+}
+
+function endBombEffects(puck, timers, consumables) {
+    timers.bombExpireTime = 0;
+    for (let i = 0; i < consumables.bombEffectCount; i++) {
+        reverseSpeedIncreasePercent(puck, 50); // Reverse consumable speed up when it is worn off.
+    }
+    consumables.bombEffectCount = 0;
 }
 
 function consumableCollisionDetection(puck, consumables, timers, particles) {
@@ -112,14 +119,14 @@ function consumableCollisionDetection(puck, consumables, timers, particles) {
     for (let i = 0; i < rockets.length; i++) {
         if (distanceBetweenPoints(puck.x, puck.y, rockets[i].x, rockets[i].y) < rockets[i].r + puck.r) {
             rocketCollisions.push(i);
-            rocketEffect(puck, timers);
+            rocketEffect(puck, timers, consumables);
         }
     }
     // Bombs
     for (let i = 0; i < bombs.length; i++) {
         if (distanceBetweenPoints(puck.x, puck.y, bombs[i].x, bombs[i].y) < bombs[i].r + puck.r) {
             bombCollisions.push(i);
-            bombEffect(puck, timers, bombs[i], particles);
+            bombEffect(puck, timers, bombs[i], particles, consumables);
         }
     }
 
@@ -134,9 +141,9 @@ function consumableCollisionDetection(puck, consumables, timers, particles) {
     }
 }
 
-function rocketEffect(puck, timers) {
+function rocketEffect(puck, timers, consumables) {
     timers.resetTime = 100; // Pause for tenth of second to ignite rocket.
-    timers.rocketEffectCount += 1;
+    consumables.rocketEffectCount += 1;
     increaseSpeedPercent(puck, 50); // Increase puck speed by 50%.
 
     // Get new random direction velocities based on speed, toward other players side.
@@ -145,10 +152,11 @@ function rocketEffect(puck, timers) {
         setRandomVelocities(puck, currentSpeed, 45, 135);
     } else {
         setRandomVelocities(puck, currentSpeed, 225, 315);
-    }
+    } 
 }
 
-function bombEffect(puck, timers, bomb, particles) {
+function bombEffect(puck, timers, bomb, particles, consumables) {
+    consumables.bombEffectCount += 1;
     timers.resetTime = 250; // Pause puck for a quarter second.
     timers.bombExpireTime = 3000; // Effect lasts for 3 seconds.
     increaseSpeedPercent(puck, 50); // Increase puck speed by 50%.

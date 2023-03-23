@@ -2,7 +2,7 @@
 
 
 // Update scores when necessary.
-function updateScore(overlay, scorePoint, score, puck, timers) {
+function updateScore(overlay, scorePoint, score, puck, timers, consumables) {
     if (scorePoint[0] === true) {
         if (scorePoint[1] === 1) {
           score.player1 += 1;
@@ -10,7 +10,7 @@ function updateScore(overlay, scorePoint, score, puck, timers) {
           score.player2 += 1;
         }
         score.newRender = true;
-        resetPuck(overlay, puck, timers, score);
+        resetPuck(overlay, puck, timers, score, consumables);
         if (score.player1 === 7 || score.player2 === 7) {
           return true;
         }
@@ -58,6 +58,12 @@ function updateConsumableTimers(consumables, timers, elapsedTime) {
     }
 }
 
+function createRocketExhaustParticles(puck, particles, consumables) {
+  if (consumables.rocketEffectCount > 0) {
+    createRocketParticles(puck, particles, "normal");
+  }
+}
+
 // Increase puck speed after time.
 function longGameSpeedUp(puck, timers) {
     if (Math.floor(timers.timeSinceScore/1000) > timers.lastSpeedIncrease) {
@@ -72,30 +78,60 @@ function updatePuck(overlay, puck, paddle, consumables, particles, timers, elaps
     if (timers.resetTime > 0) {
         timers.resetTime -= elapsedTime;
     } else {
+
         if (timers.bombExpireTime > 0) {
             timers.bombExpireTime -= elapsedTime;
-        } else if (timers.bombExpireTime < 0) {
-            timers.bombExpireTime = 0;
-            reverseSpeedIncreasePercent(puck, 50); // Reverse consumable speed up when it is worn off.
+        } else if (timers.bombExpireTime < 0) { // Janky code for bomb worn off trigger
+          endBombEffects(puck, timers, consumables);
         }
+
         // Update the puck location and address collisions.
         puck.x = puck.x + (puck.velX*elapsedTime/1000);
         puck.y = puck.y + (puck.velY*elapsedTime/1000);
         consumableCollisionDetection(puck, consumables, timers, particles);
-        collisionDetectionHandling(puck, paddle, overlay, timers); // Main collision physics.
+        collisionDetectionHandling(puck, paddle, overlay, consumables); // Main collision physics.
+        createRocketExhaustParticles(puck, particles, consumables);
     }
+
+    updatePuckColor(puck, consumables);
     return pointDetection(puck, overlay);
 }
 
-function resetPuck(overlay, puck, timers, score) {
+// Update puck color based on consumable effects.
+function updatePuckColor(puck, consumables) {
+  if (consumables.bombEffectCount === 0) {
+    if (consumables.rocketEffectCount > 3) {
+      puck.color = '#8a0303'; // blood red
+    } else if (consumables.rocketEffectCount === 3) {
+        puck.color = '#fc2e20'; // red
+    } else if (consumables.rocketEffectCount === 2) {
+        puck.color = '#ff4500'; // orange red
+    } else if (consumables.rocketEffectCount === 1) {
+        puck.color = '#ff8300'; // orange
+    } else {
+      puck.color = '#202124'; // black grey
+    }
+  } else if (consumables.bombEffectCount === 1) {
+    if (consumables.rocketEffectCount === 0) {
+      puck.color = '#ff4500';
+    } else {
+      puck.color = '#8a0303';
+    }
+  } else if (consumables.bombEffectCount > 1) {
+    puck.color = '#8a0303';
+  }
+}
+
+function resetPuck(overlay, puck, timers, score, consumables) {
     setHalfRandomVelocities(puck, puck.initialSpeed);
     let speedUp = 4 * (score.player1 + score.player2);
     increaseSpeedFromInitial(puck, speedUp); // Speed increases slightly each round.
     puck.x = overlay.width/2;
-    puck.y = overlay.height/2
+    puck.y = overlay.height/2;
     timers.resetTime = 750;
     timers.bombExpireTime = 0;
-    timers.rocketEffectCount = 0;
+    consumables.rocketEffectCount = 0;
+    consumables.bombEffectCount = 0;
 }
 
 function movePaddle(e, canvas, paddle) {

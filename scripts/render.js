@@ -61,7 +61,7 @@ let graphics = (function() {
     let ctx = canvas.getContext('2d');
     ctx.beginPath();
     ctx.arc(puck.x, puck.y, puck.r, 0, 2*Math.PI, false);
-    ctx.fillStyle = '#202124';
+    ctx.fillStyle = puck.color;
     ctx.fill();
     ctx.strokeStyle = 'white';
     ctx.lineWidth = "2";
