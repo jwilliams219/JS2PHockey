@@ -60,7 +60,7 @@ function updateConsumableTimers(consumables, timers, elapsedTime) {
 
 function createRocketExhaustParticles(puck, particles, consumables) {
   if (consumables.rocketEffectCount > 0) {
-    createRocketParticles(puck, particles, "normal");
+    particleSystem.createRocketParticles(puck, particles, "normal");
   }
 }
 
@@ -89,7 +89,10 @@ function updatePuck(overlay, puck, paddle, consumables, particles, timers, elaps
         puck.x = puck.x + (puck.velX*elapsedTime/1000);
         puck.y = puck.y + (puck.velY*elapsedTime/1000);
         consumableCollisionDetection(puck, consumables, timers, particles);
-        collisionDetectionHandling(puck, paddle, overlay, consumables); // Main collision physics.
+        let collision = collisionDetectionHandling(puck, paddle, overlay); // Main collision physics.
+        if (collision && consumables.rocketEffectCount > 0) {
+          endRocketEffects(puck, consumables); 
+        }
         createRocketExhaustParticles(puck, particles, consumables);
     }
 
@@ -147,13 +150,23 @@ function movePaddle(e, canvas, paddle) {
 }
 
 function winner() {
-    let start = startButton();
+    let start = createStartButton();
     if (start) {
       const startButton = document.getElementById("startButton");
       startButton.textContent = "Play Again?"
       startButton.style.left = "35vw";
     }
     toggleFullscreen();
+}
+
+function createStartButton() {
+  let startButton = document.createElement("button");
+  startButton.id = "startButton";
+  startButton.className = "startButton";
+  startButton.textContent = "Play";
+  startButton.addEventListener("click", () => { start(); });
+  document.body.appendChild(startButton);
+  return true;
 }
 
 function toggleFullscreen() {

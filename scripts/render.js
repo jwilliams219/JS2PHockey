@@ -100,6 +100,12 @@ let graphics = (function() {
       ctx.drawImage(img, rocket.x - 16, rocket.y - 17, 32, 34)
     }
   }
+
+  function drawRockets(canvas, rockets, img) {
+    for (let i = 0; i < rockets.length; i++) {
+      drawRocket(canvas, rockets[i], img);
+    }
+  }
   
   function loadBombImg() {
     let imgBomb = new Image();
@@ -115,6 +121,12 @@ let graphics = (function() {
     let ctx = canvas.getContext('2d');
     if (img.isReady) {
       ctx.drawImage(img, bomb.x - 26, bomb.y - 32, 52, 64);
+    }
+  }
+
+  function drawBombs(canvas, bombs, img) {
+    for (let i = 0; i < bombs.length; i++) {
+      drawBomb(canvas, bombs[i], img);
     }
   }
   
@@ -155,22 +167,11 @@ let graphics = (function() {
     drawParticles: drawParticles,
     drawPuck: drawPuck,
     drawPaddle: drawPaddle,
-    drawRocket: drawRocket,
-    drawBomb: drawBomb,
+    drawRockets: drawRockets,
+    drawBombs: drawBombs,
     drawScores: drawScores,
     drawCountdown: drawCountdown,
   };
 
   return api;
 }());
-
-
-function startButton() {
-  let startButton = document.createElement("button");
-  startButton.id = "startButton";
-  startButton.className = "startButton";
-  startButton.textContent = "Play";
-  startButton.addEventListener("click", () => { start(); });
-  document.body.appendChild(startButton);
-  return true;
-}

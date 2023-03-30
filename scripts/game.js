@@ -98,7 +98,7 @@ function game() {
     updateConsumableTimers(consumables, timers, elapsedTime);
 
     // Update particle animations
-    updateParticles(particles, elapsedTime);
+    particleSystem.updateParticles(particles, elapsedTime);
 
     // Slowly speed up the round over time.
     longGameSpeedUp(puck, timers);
@@ -122,12 +122,8 @@ function game() {
     } else {
       graphics.drawCountdown(canvas.overlay, timers);
     }
-    for (let i = 0; i < consumables.rockets.length; i++) { // Put these for loops into the graphics functions.
-      graphics.drawRocket(canvas.overlay, consumables.rockets[i], consumables.imgRocket);
-    }
-    for (let i = 0; i < consumables.bombs.length; i++) {
-      graphics.drawBomb(canvas.overlay, consumables.bombs[i], consumables.imgBomb);
-    }
+    graphics.drawRockets(canvas.overlay, consumables.rockets, consumables.imgRocket)
+    graphics.drawBombs(canvas.overlay, consumables.bombs, consumables.imgBomb)
   }
 
   initializeGame();
@@ -151,4 +147,4 @@ function start() {
 
 // Enable normal touch functions before beginning game.
 document.getElementById("overlay").setAttribute("style", "touch-action: auto");
-startButton();
+createStartButton();

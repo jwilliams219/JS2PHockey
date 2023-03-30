@@ -17,15 +17,15 @@ function checkRoundEdgeCollision(puck, x, y, r) {
     return false;
 }
 
-function collisionDetectionHandling(puck, paddle, overlay, consumables) {
+function collisionDetectionHandling(puck, paddle, overlay) {
     // Address wall collisions.
     if (puck.x-puck.r < 0) {
-        let overlap = -1*(0 - (puck.x - puck.r));
-        puck.x = overlap + puck.r;
+        let overlap = puck.x - puck.r;
+        puck.x -= overlap*2;
         puck.velX = -1*puck.velX;
     } else if (puck.x + puck.r > overlay.width) {
         let overlap = puck.x + puck.r - overlay.width;
-        puck.x = overlay.width - overlap - puck.r;
+        puck.x -= overlap*2;
         puck.velX = -1*puck.velX;
     }
 
@@ -56,7 +56,7 @@ function collisionDetectionHandling(puck, paddle, overlay, consumables) {
         // Check collision with either rounded edge.
         else {
             paddleCollision = checkRoundEdgeCollision(puck, leftRadiusCenterX, p1.y, p1.width/2);
-            paddleCollision = checkRoundEdgeCollision(puck, rightRadiusCenterX, p1.y, p1.width/2);
+            paddleCollision = paddleCollision || checkRoundEdgeCollision(puck, rightRadiusCenterX, p1.y, p1.width/2);
         }
     }
 
@@ -85,12 +85,10 @@ function collisionDetectionHandling(puck, paddle, overlay, consumables) {
         // Collision with rounded edge
         else {
             paddleCollision = checkRoundEdgeCollision(puck, leftRadiusCenterX, p2.y, p2.width/2);
-            paddleCollision = checkRoundEdgeCollision(puck, rightRadiusCenterX, p2.y, p2.width/2);
+            paddleCollision = paddleCollision || checkRoundEdgeCollision(puck, rightRadiusCenterX, p2.y, p2.width/2);
         }
     }
-    if (paddleCollision && consumables.rocketEffectCount > 0) {
-        endRocketEffects(puck, consumables); 
-    }
+    return paddleCollision;
 }
 
 // Rocket effects only last until it hits paddle.
@@ -168,7 +166,7 @@ function bombEffect(puck, timers, bomb, particles, consumables) {
     } else {
         setRandomVelocities(puck, currentSpeed, 45, 135);
     }
-    createBombParticles(bomb, particles);
+    particleSystem.createBombParticles(bomb, particles);
 }
 
 // Get random direction velocities that add up to the given speed between degree min, max.
