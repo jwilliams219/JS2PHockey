@@ -5,15 +5,16 @@ let particleSystem = (function() {
     let smokeImg = graphics.loadSmoke2();
     let fireImg1 = graphics.loadFire1();
     let fireImg2 = graphics.loadFire2();
+    let fireImg3 = graphics.loadFire3();
 
     function createBombParticles(bomb, particles) {
         let particle = { 
             size: { mean: 10, stdev: 2 },
-            speed: { mean: 60, stdev: 25 }}
+            speed: { mean: 100, stdev: 35 }}
 
         for (let i = 0; i < 15; i++) { // Create fire particles 1
-            let x = getRandomInt(Math.round(bomb.x-15), Math.round(bomb.x+15));
-            let y = getRandomInt(Math.round(bomb.y-15), Math.round(bomb.y+15));
+            let x = getRandomInt(Math.round(bomb.x-20), Math.round(bomb.x+20));
+            let y = getRandomInt(Math.round(bomb.y-20), Math.round(bomb.y+20));
             let size = nextGaussian(particle.size.mean, particle.size.stdev);
             particles.push( { 
                 center: { x: x, y: y },
@@ -27,23 +28,23 @@ let particleSystem = (function() {
             })
         }
         for (let i = 0; i < 30; i++) { // Create fire particles 2
-            let x = getRandomInt(Math.round(bomb.x-15), Math.round(bomb.x+15));
-            let y = getRandomInt(Math.round(bomb.y-15), Math.round(bomb.y+15));
+            let x = getRandomInt(Math.round(bomb.x-20), Math.round(bomb.x+20));
+            let y = getRandomInt(Math.round(bomb.y-20), Math.round(bomb.y+20));
             let size = nextGaussian(particle.size.mean, particle.size.stdev);
             particles.push( { 
                 center: { x: x, y: y },
                 size: { width: size, height: size },
                 direction: nextCircleVector(),
-                speed: nextGaussian(100, 25),
+                speed: nextGaussian(150, 45),
                 rotation: 0,
                 lifetime: nextGaussian(600, 200),
                 alive: 0,
-                image: fireImg2
+                image: fireImg3
             })
         }
         for (let i = 0; i < 15; i++) { // Create smoke particles
-            let x = getRandomInt(Math.round(bomb.x-15), Math.round(bomb.x+15));
-            let y = getRandomInt(Math.round(bomb.y-15), Math.round(bomb.y+15));
+            let x = getRandomInt(Math.round(bomb.x-20), Math.round(bomb.x+20));
+            let y = getRandomInt(Math.round(bomb.y-20), Math.round(bomb.y+20));
             let size = nextGaussian(particle.size.mean, particle.size.stdev);
             particles.push( { 
                 center: { x: x, y: y },
@@ -63,7 +64,7 @@ let particleSystem = (function() {
         if (rocketType === "normal") {
             fire = fireImg2;
         } else if (rocketType === "blue") {
-            fire = fireImg3;
+            fire = fireImg4;
         }
         let particle = { 
             size: { mean: 5, stdev: 2 },

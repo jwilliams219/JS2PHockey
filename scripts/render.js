@@ -34,6 +34,16 @@ let graphics = (function() {
     imgFire.src = './images/fire-2.png';
     return imgFire;
   }
+
+  function loadFire3() {
+    let imgFire = new Image();
+    imgFire.isReady = false;
+    imgFire.onload = function() {
+      this.isReady = true;
+    };
+    imgFire.src = './images/fire-3.png';
+    return imgFire;
+  }
   
   function drawParticle(canvas, particle) {
     let ctx = canvas.getContext("2d");
@@ -50,7 +60,7 @@ let graphics = (function() {
   }
   
   function drawParticles(canvas, particles) {
-    for (let i in particles) {
+    for (let i =0; i < particles.length; i++) {
       if (particles[i].image.isReady) {
         drawParticle(canvas, particles[i]);
       }
@@ -116,6 +126,16 @@ let graphics = (function() {
     imgBomb.src = './images/bomb.png';
     return imgBomb;
   }
+
+  function loadRedBombImg() {
+    let imgBomb = new Image();
+    imgBomb.isReady = false;
+    imgBomb.onload = function() {
+      this.isReady = true;
+    };
+    imgBomb.src = './images/red bomb.png';
+    return imgBomb;
+  }
   
   function drawBomb(canvas, bomb, img) {
     let ctx = canvas.getContext('2d');
@@ -162,8 +182,10 @@ let graphics = (function() {
     loadSmoke2: loadSmoke2,
     loadFire1: loadFire1,
     loadFire2: loadFire2,
+    loadFire3: loadFire3,
     loadRocketImg: loadRocketImg,
     loadBombImg: loadBombImg,
+    loadRedBombImg: loadRedBombImg,
     drawParticles: drawParticles,
     drawPuck: drawPuck,
     drawPaddle: drawPaddle,

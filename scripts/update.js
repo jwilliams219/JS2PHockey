@@ -32,38 +32,6 @@ function pointDetection(puck, overlay) {
     return [false, 0];
 }
 
-function createConsumable(consumables, consumable) {
-    let randomX = getRandomInt(50, overlay.width - 50);
-    let randomY = getRandomInt(overlay.height/4, overlay.height*3/4);
-    if (consumable === "rocket") {
-      consumables.rockets.push({ x: randomX, y: randomY, r: 15 })
-    } else if (consumable === "bomb") {
-      consumables.bombs.push({ x: randomX, y: randomY, r: 15 })
-    }
-}
-
-// Update conmsumable spawn timers.
-function updateConsumableTimers(consumables, timers, elapsedTime) {
-    if (timers.resetTime <= 0) {
-        timers.rocket -= elapsedTime;
-        if (timers.rocket < 0) {
-          createConsumable(consumables, "rocket");
-          timers.rocket = timers.totalRocketSpawnTime;
-        }
-        timers.bomb -= elapsedTime;
-        if (timers.bomb < 0) {
-          createConsumable(consumables, "bomb");
-          timers.bomb = timers.totalBombSpawnTime;
-        }
-    }
-}
-
-function createRocketExhaustParticles(puck, particles, consumables) {
-  if (consumables.rocketEffectCount > 0) {
-    particleSystem.createRocketParticles(puck, particles, "normal");
-  }
-}
-
 // Increase puck speed after time.
 function longGameSpeedUp(puck, timers) {
     if (Math.floor(timers.timeSinceScore/1000) > timers.lastSpeedIncrease) {
@@ -88,7 +56,7 @@ function updatePuck(overlay, puck, paddle, consumables, particles, timers, elaps
         // Update the puck location and address collisions.
         puck.x = puck.x + (puck.velX*elapsedTime/1000);
         puck.y = puck.y + (puck.velY*elapsedTime/1000);
-        consumableCollisionDetection(puck, consumables, timers, particles);
+        consumableCollisionDetection(puck, consumables, timers);
         let collision = collisionDetectionHandling(puck, paddle, overlay); // Main collision physics.
         if (collision && consumables.rocketEffectCount > 0) {
           endRocketEffects(puck, consumables); 

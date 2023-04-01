@@ -8,9 +8,9 @@ function game() {
   var paddles = {};
   var puck = {};
   var consumables = {};
-  var score = {};
   var window = {};
   var canvas = {};
+  var stats = {};
   var particles = [];
 
   function adjustGameToWindowSize() {
@@ -32,9 +32,10 @@ function game() {
     puck = { x: canvas.overlay.width/2, y: canvas.overlay.height/2, velX: 0, velY: 0, r: 15, initialSpeed: canvas.overlay.height/3, color: '#202124' };
     setHalfRandomVelocities(puck, puck.initialSpeed); // Set intitial velX, velY
     
-    timers = { resetTime: 3500, bomb: 6500, totalBombSpawnTime: 6500, bombExpireTime: 0, rocket: 5000, 
+    timers = { resetTime: 3250, bomb: 6500, totalBombSpawnTime: 6500, bombExpireTime: 0, rocket: 5000, 
       totalRocketSpawnTime: 5000, timeSinceScore: 0,  lastSpeedIncrease: 0 };
-    score.newRender = true;
+    console.log(stats)
+    stats.score.newRender = true;
   }
 
   function initializeGame() {
@@ -47,11 +48,12 @@ function game() {
 
     let domRect = canvas.overlay.getBoundingClientRect();
     window = { height: domRect["height"], width: domRect["width"] };
+    stats.score = { player1: 0, player2: 0, newRender: true };
+    stats.blueRockets = { player1: 0, player2: 0 };
+    consumables = { bombs: [], redBombs: [], rockets: [], blueRockets: [], imgBomb: graphics.loadBombImg(), imgRedBomb: graphics.loadRedBombImg(),
+      imgRocket: graphics.loadRocketImg(), rocketEffectCount: 0, bombEffectCount: 0 };
+      
     adjustGameToWindowSize();
-
-    score = { player1: 0, player2: 0, newRender: true };
-    consumables = { bombs: [], rockets: [], imgBomb: graphics.loadBombImg(), imgRocket: graphics.loadRocketImg(), 
-      rocketEffectCount: 0, bombEffectCount: 0 };
 
     canvas.canvas1.addEventListener('touchstart', (e) => movePaddle(e, canvas.canvas1, paddles[1]));
     canvas.canvas2.addEventListener('touchstart', (e) => movePaddle(e, canvas.canvas2, paddles[2]));
@@ -92,10 +94,10 @@ function game() {
     let scorePoint = updatePuck(canvas.overlay, puck, paddles, consumables, particles, timers, elapsedTime);
 
     // Update if player has scored.
-    let gameIsOver = updateScore(canvas.overlay, scorePoint, score, puck, timers, consumables);
+    let gameIsOver = updateScore(canvas.overlay, scorePoint, stats.score, puck, timers, consumables);
 
     // Update conmsumable spawn timers.
-    updateConsumableTimers(consumables, timers, elapsedTime);
+    updateConsumableTimers(consumables, timers, elapsedTime, particles);
 
     // Update particle animations
     particleSystem.updateParticles(particles, elapsedTime);
@@ -108,8 +110,8 @@ function game() {
 
   function render() {
     // Render scores on player canvases.
-    if (score.newRender) {
-      graphics.drawScores(canvas, score);
+    if (stats.score.newRender) {
+      graphics.drawScores(canvas, stats.score);
     }
 
     // Render objects on the overlay canvas.
@@ -117,13 +119,14 @@ function game() {
     graphics.drawPaddle(canvas.overlay, paddles[1]);
     graphics.drawPaddle(canvas.overlay, paddles[2]);
     graphics.drawParticles(canvas.overlay, particles);
-    if (timers.resetTime <= 1000) {
+    if (timers.resetTime <= 750) {
       graphics.drawPuck(canvas.overlay, puck);
     } else {
       graphics.drawCountdown(canvas.overlay, timers);
     }
     graphics.drawRockets(canvas.overlay, consumables.rockets, consumables.imgRocket)
     graphics.drawBombs(canvas.overlay, consumables.bombs, consumables.imgBomb)
+    graphics.drawBombs(canvas.overlay, consumables.redBombs, consumables.imgRedBomb)
   }
 
   initializeGame();

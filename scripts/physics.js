@@ -91,23 +91,7 @@ function collisionDetectionHandling(puck, paddle, overlay) {
     return paddleCollision;
 }
 
-// Rocket effects only last until it hits paddle.
-function endRocketEffects(puck, consumables) {
-    for (let i = 0; i < consumables.rocketEffectCount; i++) {
-        reverseSpeedIncreasePercent(puck, 50);
-    }
-    consumables.rocketEffectCount = 0;
-}
-
-function endBombEffects(puck, timers, consumables) {
-    timers.bombExpireTime = 0;
-    for (let i = 0; i < consumables.bombEffectCount; i++) {
-        reverseSpeedIncreasePercent(puck, 50); // Reverse consumable speed up when it is worn off.
-    }
-    consumables.bombEffectCount = 0;
-}
-
-function consumableCollisionDetection(puck, consumables, timers, particles) {
+function consumableCollisionDetection(puck, consumables, timers) {
     let rocketCollisions = [];
     let bombCollisions = [];
     let rockets = consumables.rockets;
@@ -124,7 +108,7 @@ function consumableCollisionDetection(puck, consumables, timers, particles) {
     for (let i = 0; i < bombs.length; i++) {
         if (distanceBetweenPoints(puck.x, puck.y, bombs[i].x, bombs[i].y) < bombs[i].r + puck.r) {
             bombCollisions.push(i);
-            bombEffect(puck, timers, bombs[i], particles, consumables);
+            bombEffect(puck, timers, bombs[i], consumables);
         }
     }
 
@@ -137,36 +121,6 @@ function consumableCollisionDetection(puck, consumables, timers, particles) {
     for (let i = 0; i < bombCollisions.length; i++) {
         bombs.splice(bombCollisions[i], 1);
     }
-}
-
-function rocketEffect(puck, timers, consumables) {
-    timers.resetTime = 100; // Pause for tenth of second to ignite rocket.
-    consumables.rocketEffectCount += 1;
-    increaseSpeedPercent(puck, 50); // Increase puck speed by 50%.
-
-    // Get new random direction velocities based on speed, toward other players side.
-    const currentSpeed = Math.sqrt(puck.velX**2 + puck.velY**2);
-    if (puck.velY > 0) {
-        setRandomVelocities(puck, currentSpeed, 45, 135);
-    } else {
-        setRandomVelocities(puck, currentSpeed, 225, 315);
-    } 
-}
-
-function bombEffect(puck, timers, bomb, particles, consumables) {
-    consumables.bombEffectCount += 1;
-    timers.resetTime = 250; // Pause puck for a quarter second.
-    timers.bombExpireTime = 3000; // Effect lasts for 3 seconds.
-    increaseSpeedPercent(puck, 50); // Increase puck speed by 50%.
-
-    // Get new random direction velocities based on speed, toward last players own side.
-    const currentSpeed = Math.sqrt(puck.velX**2 + puck.velY**2);
-    if (puck.velY > 0) {
-        setRandomVelocities(puck, currentSpeed, 225, 315);
-    } else {
-        setRandomVelocities(puck, currentSpeed, 45, 135);
-    }
-    particleSystem.createBombParticles(bomb, particles);
 }
 
 // Get random direction velocities that add up to the given speed between degree min, max.
