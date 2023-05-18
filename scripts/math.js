@@ -13,6 +13,19 @@ function distanceBetweenPoints(x1, y1, x2, y2) {
     return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 }
 
+function calculatePointAlongLine(point1, point2, distance) {
+    const [x1, y1] = point1;
+    const [x2, y2] = point2;
+    
+    const totalDistance = distanceBetweenPoints(x1, y1, x2, y2);
+    const ratio = distance / totalDistance;
+    
+    const endpointX = x1 + (x2 - x1) * ratio;
+    const endpointY = y1 + (y2 - y1) * ratio;
+    
+    return [endpointX, endpointY];
+}
+
 function getAngle(x1, y1, x2, y2) {
     const dx = x2 - x1;
     const dy = y2 - y1;

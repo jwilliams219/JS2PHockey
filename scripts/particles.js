@@ -6,13 +6,59 @@ let particleSystem = (function() {
     let fireImg1 = graphics.loadFire1();
     let fireImg2 = graphics.loadFire2();
     let fireImg3 = graphics.loadFire3();
+    let fireBlue = graphics.loadFireBlue();
 
     function createBombParticles(bomb, particles) {
         let particle = { 
-            size: { mean: 10, stdev: 2 },
-            speed: { mean: 100, stdev: 35 }}
+            size: { mean: 8, stdev: 3 },
+            speed: { mean: 75, stdev: 35 }}
 
-        for (let i = 0; i < 15; i++) { // Create fire particles 1
+        for (let i = 0; i < 30; i++) { // Create fire particles 1
+            let x = getRandomInt(Math.round(bomb.x-20), Math.round(bomb.x+20));
+            let y = getRandomInt(Math.round(bomb.y-20), Math.round(bomb.y+20));
+            let size = nextGaussian(particle.size.mean, particle.size.stdev);
+            particles.push( { 
+                center: { x: x, y: y },
+                size: { width: size, height: size },
+                direction: nextCircleVector(),
+                speed: nextGaussian(particle.speed.mean, particle.speed.stdev),
+                rotation: 0,
+                lifetime: nextGaussian(700, 200),
+                alive: 0,
+                image: fireImg1
+            })
+        }
+        for (let i = 0; i < 20; i++) { // Create fire particles 2
+            let x = getRandomInt(Math.round(bomb.x-20), Math.round(bomb.x+20));
+            let y = getRandomInt(Math.round(bomb.y-20), Math.round(bomb.y+20));
+            let size = nextGaussian(particle.size.mean, particle.size.stdev);
+            particles.push( { 
+                center: { x: x, y: y },
+                size: { width: size, height: size },
+                direction: nextCircleVector(),
+                speed: nextGaussian(120, 45),
+                rotation: 0,
+                lifetime: nextGaussian(500, 200),
+                alive: 0,
+                image: fireImg2
+            })
+        }
+        for (let i = 0; i < 50; i++) { // Create fire particles 3
+            let x = getRandomInt(Math.round(bomb.x-20), Math.round(bomb.x+20));
+            let y = getRandomInt(Math.round(bomb.y-20), Math.round(bomb.y+20));
+            let size = nextGaussian(particle.size.mean, particle.size.stdev);
+            particles.push( { 
+                center: { x: x, y: y },
+                size: { width: size, height: size },
+                direction: nextCircleVector(),
+                speed: nextGaussian(120, 45),
+                rotation: 0,
+                lifetime: nextGaussian(500, 200),
+                alive: 0,
+                image: fireImg3
+            })
+        }
+        for (let i = 0; i < 30; i++) { // Create smoke particles
             let x = getRandomInt(Math.round(bomb.x-20), Math.round(bomb.x+20));
             let y = getRandomInt(Math.round(bomb.y-20), Math.round(bomb.y+20));
             let size = nextGaussian(particle.size.mean, particle.size.stdev);
@@ -24,36 +70,6 @@ let particleSystem = (function() {
                 rotation: 0,
                 lifetime: nextGaussian(800, 200),
                 alive: 0,
-                image: fireImg1
-            })
-        }
-        for (let i = 0; i < 30; i++) { // Create fire particles 2
-            let x = getRandomInt(Math.round(bomb.x-20), Math.round(bomb.x+20));
-            let y = getRandomInt(Math.round(bomb.y-20), Math.round(bomb.y+20));
-            let size = nextGaussian(particle.size.mean, particle.size.stdev);
-            particles.push( { 
-                center: { x: x, y: y },
-                size: { width: size, height: size },
-                direction: nextCircleVector(),
-                speed: nextGaussian(150, 45),
-                rotation: 0,
-                lifetime: nextGaussian(600, 200),
-                alive: 0,
-                image: fireImg3
-            })
-        }
-        for (let i = 0; i < 15; i++) { // Create smoke particles
-            let x = getRandomInt(Math.round(bomb.x-20), Math.round(bomb.x+20));
-            let y = getRandomInt(Math.round(bomb.y-20), Math.round(bomb.y+20));
-            let size = nextGaussian(particle.size.mean, particle.size.stdev);
-            particles.push( { 
-                center: { x: x, y: y },
-                size: { width: size, height: size },
-                direction: nextCircleVector(),
-                speed: nextGaussian(particle.speed.mean, particle.speed.stdev),
-                rotation: 0,
-                lifetime: nextGaussian(900, 200),
-                alive: 0,
                 image: smokeImg
             })
         }
@@ -64,7 +80,7 @@ let particleSystem = (function() {
         if (rocketType === "normal") {
             fire = fireImg2;
         } else if (rocketType === "blue") {
-            fire = fireImg4;
+            fire = fireBlue;
         }
         let particle = { 
             size: { mean: 5, stdev: 2 },
@@ -80,7 +96,7 @@ let particleSystem = (function() {
                 direction: nextCircleVector(),
                 speed: nextGaussian(40, 10),
                 rotation: 0,
-                lifetime: nextGaussian(150, 75),
+                lifetime: nextGaussian(175, 75),
                 alive: 0,
                 image: fire,
                 type: "fire"
@@ -96,7 +112,7 @@ let particleSystem = (function() {
                 direction: nextCircleVector(),
                 speed: nextGaussian(particle.speed.mean, particle.speed.stdev),
                 rotation: 0,
-                lifetime: nextGaussian(300, 75),
+                lifetime: nextGaussian(350, 75),
                 alive: 0,
                 image: smokeImg,
                 type: "smoke"

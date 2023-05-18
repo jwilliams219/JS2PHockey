@@ -91,10 +91,11 @@ function collisionDetectionHandling(puck, paddle, overlay) {
     return paddleCollision;
 }
 
-function consumableCollisionDetection(puck, consumables, timers) {
+function consumableCollisionDetection(puck, consumables, timers, stats) {
     let rocketCollisions = [];
     let bombCollisions = [];
     let rockets = consumables.rockets;
+    let blueRockets = consumables.blueRockets;
     let bombs = consumables.bombs;
 
     // Rockets
@@ -102,6 +103,12 @@ function consumableCollisionDetection(puck, consumables, timers) {
         if (distanceBetweenPoints(puck.x, puck.y, rockets[i].x, rockets[i].y) < rockets[i].r + puck.r) {
             rocketCollisions.push(i);
             rocketEffect(puck, timers, consumables);
+        }
+    }
+    // Blue Rockets
+    for (let i = 0; i < blueRockets.length; i++) {
+        if (distanceBetweenPoints(puck.x, puck.y, blueRockets[i].x, blueRockets[i].y) < blueRockets[i].r + puck.r) {
+            collectBlueRocket(puck, stats, blueRockets[i]);
         }
     }
     // Bombs

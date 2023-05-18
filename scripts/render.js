@@ -4,6 +4,33 @@
 //const rocketImageRes = [162, 171];
 
 let graphics = (function() {
+
+  function drawTexture(image, center, rotation, size) {
+    ctx.save();
+    ctx.translate(center.x, center.y);
+    ctx.rotate(rotation);
+    ctx.translate(-center.x, -center.y);
+    ctx.drawImage(
+        image,
+        center.x - size.width / 2,
+        center.y - size.height / 2,
+        size.width, size.height);
+    ctx.restore();
+  }
+
+  function drawText(spec) {
+      ctx.save();
+      ctx.font = spec.font;
+      ctx.fillStyle = spec.fillStyle;
+      ctx.strokeStyle = spec.strokeStyle;
+      ctx.textBaseline = 'top';
+      ctx.translate(spec.position.x, spec.position.y);
+      ctx.rotate(spec.rotation);
+      ctx.translate(-spec.position.x, -spec.position.y);
+      ctx.fillText(spec.text, spec.position.x, spec.position.y);
+      ctx.strokeText(spec.text, spec.position.x, spec.position.y);
+      ctx.restore();
+  }
   
   function loadSmoke2() {
     let imgSmoke = new Image();
@@ -44,6 +71,16 @@ let graphics = (function() {
     imgFire.src = './images/fire-3.png';
     return imgFire;
   }
+
+  function loadFireBlue() {
+    let imgFire = new Image();
+    imgFire.isReady = false;
+    imgFire.onload = function() {
+      this.isReady = true;
+    };
+    imgFire.src = './images/fire-blue.png';
+    return imgFire;
+  }
   
   function drawParticle(canvas, particle) {
     let ctx = canvas.getContext("2d");
@@ -81,9 +118,9 @@ let graphics = (function() {
   function drawPaddle(canvas, paddle) { // Do I want to made the size dynamic on screen size?
     let ctx = canvas.getContext("2d");
     ctx.beginPath();
-    ctx.lineWidth = "2";
+    ctx.lineWidth = "2";  //???
     if (navigator.userAgent.indexOf("Firefox") != -1) {
-      ctx.rect(paddle.x-(paddle.length/2), paddle.y-(paddle.width/2), paddle.length, paddle.width);
+      ctx.rect(paddle.x-(paddle.length/2), paddle.y-(paddle.width/2), paddle.length, paddle.width); 
     } else {
       ctx.roundRect(paddle.x-(paddle.length/2), paddle.y-(paddle.width/2), paddle.length, paddle.width, paddle.width/2)
     }
@@ -104,16 +141,56 @@ let graphics = (function() {
     return imgRocket;
   }
   
+  function loadBlueRocketImg() {
+    let imgRocket = new Image();
+    imgRocket.isReady = false;
+    imgRocket.onload = function() {
+      this.isReady = true;
+    };
+    imgRocket.src = './images/rocket2.png';
+    return imgRocket;
+  }
+  
   function drawRocket(canvas, rocket, img) {
     let ctx = canvas.getContext('2d');
     if (img.isReady) {
-      ctx.drawImage(img, rocket.x - 16, rocket.y - 17, 32, 34)
+      ctx.drawImage(img, rocket.x - 16, rocket.y - 17, 32, 34);
     }
   }
 
   function drawRockets(canvas, rockets, img) {
     for (let i = 0; i < rockets.length; i++) {
       drawRocket(canvas, rockets[i], img);
+    }
+  }
+
+  function drawBlueRockets(canvas, rockets, img, stats) { // Need to refactor this section and textures in general.
+    let ctx = canvas.getContext('2d');
+    let opacity = 0.8;
+    for (let i = 0; i < rockets.length; i++) {
+      let rocket = rockets[i];
+      if (img.isReady) {
+        ctx.save();
+        ctx.globalAlpha = opacity;
+        ctx.drawImage(img, rocket.x - 16, rocket.y - 17, 32, 34);
+        ctx.restore();
+      }
+    }
+    let overlay = document.getElementById("overlay");
+    if (stats.blueRockets.player1 > 0 && img.isReady) {
+      ctx.save();
+      ctx.globalAlpha = opacity;
+      ctx.translate(overlay.width/20, overlay.height/2 - (overlay.height/10))
+      ctx.rotate(Math.PI);
+      ctx.drawImage(img, -16, -17, 32, 34);
+      ctx.restore();
+    }
+    if (stats.blueRockets.player2 > 0 && img.isReady) {
+      ctx.save();
+      ctx.globalAlpha = opacity;
+      ctx.translate(overlay.width/20, overlay.height/2 + (overlay.height/10))
+      ctx.drawImage(img, -16, -17, 32, 34);
+      ctx.restore();
     }
   }
   
@@ -183,13 +260,16 @@ let graphics = (function() {
     loadFire1: loadFire1,
     loadFire2: loadFire2,
     loadFire3: loadFire3,
+    loadFireBlue: loadFireBlue,
     loadRocketImg: loadRocketImg,
+    loadBlueRocketImg: loadBlueRocketImg,
     loadBombImg: loadBombImg,
     loadRedBombImg: loadRedBombImg,
     drawParticles: drawParticles,
     drawPuck: drawPuck,
     drawPaddle: drawPaddle,
     drawRockets: drawRockets,
+    drawBlueRockets: drawBlueRockets,
     drawBombs: drawBombs,
     drawScores: drawScores,
     drawCountdown: drawCountdown,

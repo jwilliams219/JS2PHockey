@@ -7,6 +7,8 @@ function createConsumable(consumables, consumable) {
       consumables.rockets.push({ x: randomX, y: randomY, r: 15 })
     } else if (consumable === "bomb") {
       consumables.bombs.push({ x: randomX, y: randomY, r: 15 })
+    } else if (consumable === "blueRocket") {
+        consumables.blueRockets.push({ x: randomX, y: randomY, r: 15, playerX: 0, playerY: 0, collected: false })
     }
 }
 
@@ -18,16 +20,23 @@ function createRedBomb(consumables, bomb) {
 // Update conmsumable spawn timers.
 function updateConsumableTimers(consumables, timers, elapsedTime, particles) {
     if (timers.resetTime <= 0) {
-        // Create the consumables at spawn times.
+        // Create the consumables close to spawn times(slightly random).
         timers.rocket -= elapsedTime;
         if (timers.rocket < 0) {
-          createConsumable(consumables, "rocket");
-          timers.rocket = timers.totalRocketSpawnTime;
+            createConsumable(consumables, "rocket");
+            timers.rocket = getRandomInt(timers.totalRocketSpawnTime-1000, timers.totalRocketSpawnTime+1000);
+        }
+        timers.blueRocket -= elapsedTime;
+        if (timers.blueRocket < 0) {
+            if (consumables.blueRockets.length === 0) {
+                createConsumable(consumables, "blueRocket");
+            }
+            timers.blueRocket = getRandomInt(timers.totalBlueRocketSpawnTime-3000, timers.totalBlueRocketSpawnTime+3000);
         }
         timers.bomb -= elapsedTime;
         if (timers.bomb < 0) {
-          createConsumable(consumables, "bomb");
-          timers.bomb = timers.totalBombSpawnTime;
+            createConsumable(consumables, "bomb");
+            timers.bomb = getRandomInt(timers.totalBombSpawnTime-2000, timers.totalBombSpawnTime+2000);
         }
     }
     // Update the timer for red bomb animations.
@@ -62,6 +71,38 @@ function rocketEffect(puck, timers, consumables) {
     } 
 }
 
+function collectBlueRocket(puck, stats, blueRocket) {
+    if (!blueRocket.collected) {
+        blueRocket.collected = true;
+        let overlay = document.getElementById("overlay");
+        if (puck.velY > 0) {
+            stats.blueRockets.player1 += 1;
+            blueRocket.playerX = overlay.width/20;
+            blueRocket.playerY = overlay.height/2 - (overlay.height/10);
+        } else {
+            stats.blueRockets.player2 += 1;
+            blueRocket.playerX = overlay.width/20;
+            blueRocket.playerY = overlay.height/2 + (overlay.height/10);
+        }
+    }
+}
+
+function useBlueRocket(puck, timers, consumables, stats, player) {
+    timers.resetTime = 50; // Pause for short time.
+    consumables.blueRocketEffectCount = 1;
+    increaseSpeedPercent(puck, 60); // Increase puck speed by 60%.
+    
+    // Get new random direction velocities based on speed, toward enemy side.
+    const currentSpeed = Math.sqrt(puck.velX**2 + puck.velY**2);
+    if (player === 1) {
+        setRandomVelocities(puck, currentSpeed, 45, 135);
+        stats.blueRockets.player1 -= 1;
+    } else if (player === 2) {
+        setRandomVelocities(puck, currentSpeed, 225, 315);
+        stats.blueRockets.player2 -= 1;
+    } 
+}
+
 function bombEffect(puck, timers, bomb, consumables) {
     consumables.bombEffectCount += 1;
     timers.resetTime = 250; // Pause puck for a quarter second.
@@ -80,7 +121,9 @@ function bombEffect(puck, timers, bomb, consumables) {
 }
 
 function createRocketExhaustParticles(puck, particles, consumables) {
-  if (consumables.rocketEffectCount > 0) {
+  if (consumables.blueRocketEffectCount > 0) {
+    particleSystem.createRocketParticles(puck, particles, "blue");
+  } else if (consumables.rocketEffectCount > 0) {
     particleSystem.createRocketParticles(puck, particles, "normal");
   }
 }
@@ -91,6 +134,10 @@ function endRocketEffects(puck, consumables) {
         reverseSpeedIncreasePercent(puck, 30);
     }
     consumables.rocketEffectCount = 0;
+    for (let i = 0; i < consumables.blueRocketEffectCount; i++) {
+        reverseSpeedIncreasePercent(puck, 60);
+    }
+    consumables.blueRocketEffectCount = 0;
 }
 
 function endBombEffects(puck, timers, consumables) {

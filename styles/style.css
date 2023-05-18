@@ -48,15 +48,22 @@ canvas {
 button {
     position: absolute;
     z-index: 3;
-    left: 40vw;
-    top: 40vh;
-    color: black;
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translateX(-50%) translateY(-50%);
+    -moz-transform: translateX(-50%) translateY(-50%);
+    transform: translateX(-50%) translateY(-50%);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 20px;
-    padding: 15px 25px;
-    background-color: #38D2D2;
-    background-image: radial-gradient(93% 87% at 87% 89%, rgba(0, 0, 0, 0.23) 0%, transparent 86.18%), radial-gradient(66% 66% at 26% 20%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 69.79%, rgba(255, 255, 255, 0) 100%);
-    box-shadow: inset -3px -3px 9px rgba(255, 255, 255, 0.25), inset 0px 3px 9px rgba(255, 255, 255, 0.3), inset 0px 1px 1px rgba(255, 255, 255, 0.6), inset 0px -8px 36px rgba(0, 0, 0, 0.3), inset 0px 1px 5px rgba(255, 255, 255, 0.6), 2px 19px 31px rgba(0, 0, 0, 0.2);
-    border-radius: 14px;
     font-weight: bold;
-    border: 0;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    width: 10em;
+    height: 3em;
+    background: linear-gradient(to bottom, #485563, #29323c);
+    border-radius: 0.5em;
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
 }

@@ -32,9 +32,8 @@ function game() {
     puck = { x: canvas.overlay.width/2, y: canvas.overlay.height/2, velX: 0, velY: 0, r: 15, initialSpeed: canvas.overlay.height/3, color: '#202124' };
     setHalfRandomVelocities(puck, puck.initialSpeed); // Set intitial velX, velY
     
-    timers = { resetTime: 3250, bomb: 6500, totalBombSpawnTime: 6500, bombExpireTime: 0, rocket: 5000, 
-      totalRocketSpawnTime: 5000, timeSinceScore: 0,  lastSpeedIncrease: 0 };
-    console.log(stats)
+    timers = { resetTime: 3250, bomb: 6500, totalBombSpawnTime: 6500, bombExpireTime: 0, rocket: 5000, totalRocketSpawnTime: 5000, 
+      blueRocket: 12000, totalBlueRocketSpawnTime: 12000, timeSinceScore: 0,  lastSpeedIncrease: 0 };
     stats.score.newRender = true;
   }
 
@@ -51,14 +50,14 @@ function game() {
     stats.score = { player1: 0, player2: 0, newRender: true };
     stats.blueRockets = { player1: 0, player2: 0 };
     consumables = { bombs: [], redBombs: [], rockets: [], blueRockets: [], imgBomb: graphics.loadBombImg(), imgRedBomb: graphics.loadRedBombImg(),
-      imgRocket: graphics.loadRocketImg(), rocketEffectCount: 0, bombEffectCount: 0 };
+      imgRocket: graphics.loadRocketImg(), imgBlueRocket: graphics.loadBlueRocketImg(), rocketEffectCount: 0, bombEffectCount: 0, blueRocketEffectCount: 0 };
       
     adjustGameToWindowSize();
 
-    canvas.canvas1.addEventListener('touchstart', (e) => movePaddle(e, canvas.canvas1, paddles[1]));
-    canvas.canvas2.addEventListener('touchstart', (e) => movePaddle(e, canvas.canvas2, paddles[2]));
-    canvas.canvas1.addEventListener('touchmove', (e) => movePaddle(e, canvas.canvas1, paddles[1]));
-    canvas.canvas2.addEventListener('touchmove', (e) => movePaddle(e, canvas.canvas2, paddles[2]));
+    canvas.canvas1.addEventListener('touchstart', (e) => handleTouch(e, canvas.canvas1, paddles[1], stats, puck, timers, consumables));
+    canvas.canvas2.addEventListener('touchstart', (e) => handleTouch(e, canvas.canvas2, paddles[2], stats, puck, timers, consumables));
+    canvas.canvas1.addEventListener('touchmove', (e) => handleTouch(e, canvas.canvas1, paddles[1], stats, puck, timers, consumables));
+    canvas.canvas2.addEventListener('touchmove', (e) => handleTouch(e, canvas.canvas2, paddles[2], stats, puck, timers, consumables));
     
     prevTime = performance.now();
     gameLoop(performance.now());
@@ -91,13 +90,15 @@ function game() {
 
   function update(elapsedTime) {
     // Main physics update.
-    let scorePoint = updatePuck(canvas.overlay, puck, paddles, consumables, particles, timers, elapsedTime);
+    let scorePoint = updatePuck(canvas.overlay, puck, paddles, consumables, particles, timers, elapsedTime, stats);
 
     // Update if player has scored.
     let gameIsOver = updateScore(canvas.overlay, scorePoint, stats.score, puck, timers, consumables);
 
     // Update conmsumable spawn timers.
     updateConsumableTimers(consumables, timers, elapsedTime, particles);
+
+    updateAnimations(elapsedTime, consumables);
 
     // Update particle animations
     particleSystem.updateParticles(particles, elapsedTime);
@@ -125,6 +126,7 @@ function game() {
       graphics.drawCountdown(canvas.overlay, timers);
     }
     graphics.drawRockets(canvas.overlay, consumables.rockets, consumables.imgRocket)
+    graphics.drawBlueRockets(canvas.overlay, consumables.blueRockets, consumables.imgBlueRocket, stats);
     graphics.drawBombs(canvas.overlay, consumables.bombs, consumables.imgBomb)
     graphics.drawBombs(canvas.overlay, consumables.redBombs, consumables.imgRedBomb)
   }
