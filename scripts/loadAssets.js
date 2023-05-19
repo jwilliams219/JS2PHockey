@@ -92,6 +92,36 @@ let loadAssets = (function() {
     imgBomb.src = './images/red bomb.png';
     return imgBomb;
   }
+
+  function explosionSound() {
+    let sound = new Audio();
+    sound.isReady = false;
+    sound.addEventListener('canplay', function() { sound.isReady = true; });
+    sound.addEventListener('timeupdate', function(){ }, 
+    sound.src = './sounds/explosion.wav');
+    sound.volume = 0.2;
+    return sound;
+  }
+
+  function fuseSound() {
+    let sound = new Audio();
+    sound.isReady = false;
+    sound.addEventListener('canplay', function() { sound.isReady = true; });
+    sound.addEventListener('timeupdate', function(){ }, 
+    sound.src = './sounds/fuse.wav');
+    sound.volume = 0.2;
+    return sound;
+  }
+
+  function ignitionSound() {
+    let sound = new Audio();
+    sound.isReady = false;
+    sound.addEventListener('canplay', function() { sound.isReady = true; });
+    sound.addEventListener('timeupdate', function(){ }, 
+    sound.src = './sounds/ignition.wav');
+    sound.volume = 0.2;
+    return sound;
+  }
   
   let api = {
     smokeImg: smokeImg,
@@ -103,6 +133,9 @@ let loadAssets = (function() {
     blueRocketImg: blueRocketImg,
     bombImg: bombImg,
     redBombImg: redBombImg,
+    explosionSound: explosionSound,
+    fuseSound: fuseSound,
+    ignitionSound: ignitionSound,
   };
 
   return api;

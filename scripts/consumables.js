@@ -1,7 +1,7 @@
 'use strict';
 
 function createConsumable(consumables, consumable) {
-    let randomX = getRandomInt(75, overlay.width - 50);
+    let randomX = getRandomInt(50, overlay.width - 75);
     let randomY = getRandomInt(overlay.height/4, overlay.height*3/4);
     let noConflict = checkConsumableConflict({x: randomX, y: randomY}, consumables);
     if (noConflict) {
@@ -75,6 +75,9 @@ function updateConsumableTimers(consumables, timers, elapsedTime, particles) {
         if (consumables.redBombs[i].lifetime < 50 && consumables.redBombs[i].startParticles) { // Start particle animation before red bomb expiration.
             particleSystem.createBombParticles(consumables.redBombs[i], particles);
             consumables.redBombs[i].startParticles = false;
+
+            // Sound effect
+           consumables.sounds.explosion.play();
         } 
     }
     for (let i = remove.length-1; i > -1; i--) {
@@ -110,6 +113,9 @@ function rocketEffect(puck, timers, consumables) {
     } else {
         setRandomVelocities(puck, currentSpeed, 225, 315);
     } 
+
+    // Sound effect
+    consumables.sounds.ignition.play();
 }
 
 function collectBlueRocket(puck, stats, blueRocket) {
@@ -118,11 +124,11 @@ function collectBlueRocket(puck, stats, blueRocket) {
         let overlay = document.getElementById("overlay");
         if (puck.velY > 0) {
             stats.blueRockets.player1 += 1;
-            blueRocket.playerX = overlay.width/20;
+            blueRocket.playerX = overlay.width - overlay.width/20;
             blueRocket.playerY = overlay.height/2 - (overlay.height/10);
         } else {
             stats.blueRockets.player2 += 1;
-            blueRocket.playerX = overlay.width/20;
+            blueRocket.playerX = overlay.width - overlay.width/20;
             blueRocket.playerY = overlay.height/2 + (overlay.height/10);
         }
     }
@@ -159,6 +165,9 @@ function bombEffect(puck, timers, bomb, consumables) {
     }
     // Show red bomb for a moment, then disappear and particle creation.
     createRedBomb(consumables, bomb);
+
+    // Sound effect
+    consumables.sounds.fuse.play();
 }
 
 function createRocketExhaustParticles(puck, particles, consumables) {
@@ -187,4 +196,26 @@ function endBombEffects(puck, timers, consumables) {
         reverseSpeedIncreasePercent(puck, 50); // Reverse consumable speed up when it is worn off.
     }
     consumables.bombEffectCount = 0;
+}
+
+// Returns object that can handle multiple sound calls at a time.
+function soundQueue() {
+    let soundQueue = { assets: [], queue: 0};
+    
+    soundQueue.addAsset = (asset) => {
+        soundQueue.assets.push(asset);
+    }
+
+    soundQueue.play = () => {
+        if (soundQueue.assets.length !== 0 && soundQueue.assets[soundQueue.queue].isReady) {
+            soundQueue.assets[soundQueue.queue].play();
+        }
+        if (soundQueue.queue.length === 0 || soundQueue.queue === soundQueue.assets.length-1) {
+            soundQueue.queue = 0;
+        } else {
+            soundQueue.queue++;
+        }
+    }
+
+    return soundQueue;
 }

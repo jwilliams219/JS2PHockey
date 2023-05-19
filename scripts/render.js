@@ -111,22 +111,22 @@ let graphics = (function() {
     if (stats.blueRockets.player1 > 0 && img.isReady) {
       ctx.save();
       ctx.globalAlpha = opacity;
-      ctx.translate(overlay.width/20, overlay.height/2 - (overlay.height/10))
+      ctx.translate(overlay.width-overlay.width/20, overlay.height/2 - (overlay.height/10))
       ctx.rotate(Math.PI);
       ctx.drawImage(img, -16, -17, 32, 34);
-      ctx.globalAlpha = 0.5;
+      ctx.globalAlpha = 0.9;
       ctx.lineWidth = 1;
-      drawText(ctx, {font: '12px Arial', fillStyle: 'white', strokeStyle: 'white', position: {x: 15, y: 10}, rotation: 0, text: '' + stats.blueRockets.player1});
+      drawText(ctx, {font: '12px Arial', fillStyle: 'white', strokeStyle: 'white', position: {x: 14, y: 10}, rotation: 0, text: '' + stats.blueRockets.player1});
       ctx.restore();
     }
     if (stats.blueRockets.player2 > 0 && img.isReady) {
       ctx.save();
       ctx.globalAlpha = opacity;
-      ctx.translate(overlay.width/20, overlay.height/2 + (overlay.height/10))
+      ctx.translate(overlay.width-overlay.width/20-2, overlay.height/2 + (overlay.height/10))
       ctx.drawImage(img, -16, -17, 32, 34);
-      ctx.globalAlpha = 1;
+      ctx.globalAlpha = 0.9;
       ctx.lineWidth = 1;
-      drawText(ctx, {font: '12px Arial', fillStyle: 'white', strokeStyle: 'white', position: {x: 15, y: 10}, rotation: 0, text: '' + stats.blueRockets.player2});
+      drawText(ctx, {font: '12px Arial', fillStyle: 'white', strokeStyle: 'white', position: {x: 12, y: 10}, rotation: 0, text: '' + stats.blueRockets.player2});
       ctx.restore();
     }
   }
@@ -151,16 +151,16 @@ let graphics = (function() {
     const ctx2 = canvas.ctx2;
     ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
     ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
-    ctx1.font = '20px Arial';
+    ctx1.font = '24px Arial';
     ctx1.save();
     ctx1.translate(21, canvas1.height -29);
     ctx1.rotate(Math.PI);
     ctx1.fillStyle = 'white';
     ctx1.fillText(score.player1, 0, 0);
     ctx1.restore();
-    ctx2.font = '20px Arial';
+    ctx2.font = '24px Arial';
     ctx2.fillStyle = 'white';
-    ctx2.fillText(score.player2, 10, 30);
+    ctx2.fillText(score.player2, 8, 30);
     score.newRender = false;
   }
   

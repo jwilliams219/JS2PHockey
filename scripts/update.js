@@ -109,10 +109,10 @@ function handleTouch(e, canvas, paddle, stats, puck, timers, consumables) {
 
   // Check for blue rocket usage.
   if (stats.blueRockets.player1 > 0 && consumables.blueRocketEffectCount === 0 &&
-    x < overlay.width/20+48 && y < overlay.height/2-(overlay.height/10)+50 && y > overlay.height/2-(overlay.height/10)-50) {
+    x > overlay.width - overlay.width/20-48 && y < overlay.height/2-(overlay.height/10)+50 && y > overlay.height/2-(overlay.height/10)-50) {
       useBlueRocket(puck, timers, consumables, stats, 1)
   } else if (stats.blueRockets.player2 > 0 && consumables.blueRocketEffectCount === 0 &&
-    x < overlay.width/20+48 && y < overlay.height/2+(overlay.height/10)+50 && y > overlay.height/2+(overlay.height/10)-50) {
+    x > overlay.width - overlay.width/20-48 && y < overlay.height/2+(overlay.height/10)+50 && y > overlay.height/2+(overlay.height/10)-50) {
       useBlueRocket(puck, timers, consumables, stats, 2)
   } else {
 
