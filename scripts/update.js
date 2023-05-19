@@ -64,7 +64,7 @@ function updatePuck(overlay, puck, paddle, consumables, particles, timers, elaps
         }
         createRocketExhaustParticles(puck, particles, consumables);
     }
-
+    
     updatePuckColor(puck, consumables);
     return pointDetection(puck, overlay);
 }
@@ -72,16 +72,14 @@ function updatePuck(overlay, puck, paddle, consumables, particles, timers, elaps
 // Update puck color based on consumable effects.
 function updatePuckColor(puck, consumables) {
   const colors = ['#202124', '#ff8300', '#ff6400', '#ff4500', '#fc2e20', '#C31912', '#8a0303', '#310202'];
-  const blueColors = ['#202124', '#0D1C82', '#0219BB', '#0E138D', '#1F0B47', '#240731', '#29021A'];
+  const blueColors = ['#202124', '#0D1C82', '#0219BB', '#0E138D', '#1F0B47', '#1f0731', '#13041f'];
   let frenzyCount = 0;
   frenzyCount += consumables.rocketEffectCount;
   frenzyCount += consumables.bombEffectCount*3;
   frenzyCount += consumables.blueRocketEffectCount;
-  let palette;
+  let palette = colors;
   if (consumables.blueRocketEffectCount > 0) {
     palette = blueColors;
-  } else {
-    palette = colors;
   }
   if (frenzyCount > palette.length) {
     puck.color = palette[palette.length-1];
@@ -154,7 +152,6 @@ function updateAnimations(elapsedTime, consumables) {
   for (let i = remove.length-1; i > -1; i--) {
     consumables.blueRockets.splice(remove[i], 1);
   }
-  remove.length = 0;
 }
 
 function winner() {

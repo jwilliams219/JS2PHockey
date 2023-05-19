@@ -120,12 +120,10 @@ function consumableCollisionDetection(puck, consumables, timers, stats) {
     }
 
     // Remove consumable after effect.
-    rocketCollisions = rocketCollisions.reverse();
-    bombCollisions = bombCollisions.reverse();
-    for (let i = 0; i < rocketCollisions.length; i++) {
+    for (let i = rocketCollisions.length-1; i > -1; i--) {
         rockets.splice(rocketCollisions[i], 1);
     }
-    for (let i = 0; i < bombCollisions.length; i++) {
+    for (let i = bombCollisions.length-1; i > -1; i--) {
         bombs.splice(bombCollisions[i], 1);
     }
 }

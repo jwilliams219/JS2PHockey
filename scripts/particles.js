@@ -2,11 +2,11 @@
 
 let particleSystem = (function() {
 
-    let smokeImg = graphics.loadSmoke2();
-    let fireImg1 = graphics.loadFire1();
-    let fireImg2 = graphics.loadFire2();
-    let fireImg3 = graphics.loadFire3();
-    let fireBlue = graphics.loadFireBlue();
+    let smokeImg = loadAssets.smokeImg();
+    let fireImg1 = loadAssets.fireImg1();
+    let fireImg2 = loadAssets.fireImg2();
+    let fireImg3 = loadAssets.fireImg3();
+    let fireBlue = loadAssets.fireImgBlue();
 
     function createBombParticles(bomb, particles) {
         let particle = { 
@@ -136,7 +136,6 @@ let particleSystem = (function() {
         for (let i = remove.length-1; i > -1; i--) {
             particles.splice(remove[i], 1);
         }
-        remove.length = 0;
     }
 
 let api = {

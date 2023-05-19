@@ -5,7 +5,7 @@
 
 let graphics = (function() {
 
-  function drawTexture(image, center, rotation, size) {
+  function drawTexture(ctx, image, center, rotation, size) {
     ctx.save();
     ctx.translate(center.x, center.y);
     ctx.rotate(rotation);
@@ -18,11 +18,12 @@ let graphics = (function() {
     ctx.restore();
   }
 
-  function drawText(spec) {
+  function drawText(ctx, spec) {
       ctx.save();
       ctx.font = spec.font;
       ctx.fillStyle = spec.fillStyle;
       ctx.strokeStyle = spec.strokeStyle;
+      ctx.stokeWidth
       ctx.textBaseline = 'top';
       ctx.translate(spec.position.x, spec.position.y);
       ctx.rotate(spec.rotation);
@@ -30,56 +31,6 @@ let graphics = (function() {
       ctx.fillText(spec.text, spec.position.x, spec.position.y);
       ctx.strokeText(spec.text, spec.position.x, spec.position.y);
       ctx.restore();
-  }
-  
-  function loadSmoke2() {
-    let imgSmoke = new Image();
-    imgSmoke.isReady = false;
-    imgSmoke.onload = function() {
-      this.isReady = true;
-    };
-    imgSmoke.src = './images/smoke-2.png';
-    return imgSmoke;
-  }
-  
-  function loadFire1() {
-    let imgFire = new Image();
-    imgFire.isReady = false;
-    imgFire.onload = function() {
-      this.isReady = true;
-    };
-    imgFire.src = './images/fire.png';
-    return imgFire;
-  }
-
-  function loadFire2() {
-    let imgFire = new Image();
-    imgFire.isReady = false;
-    imgFire.onload = function() {
-      this.isReady = true;
-    };
-    imgFire.src = './images/fire-2.png';
-    return imgFire;
-  }
-
-  function loadFire3() {
-    let imgFire = new Image();
-    imgFire.isReady = false;
-    imgFire.onload = function() {
-      this.isReady = true;
-    };
-    imgFire.src = './images/fire-3.png';
-    return imgFire;
-  }
-
-  function loadFireBlue() {
-    let imgFire = new Image();
-    imgFire.isReady = false;
-    imgFire.onload = function() {
-      this.isReady = true;
-    };
-    imgFire.src = './images/fire-blue.png';
-    return imgFire;
   }
   
   function drawParticle(canvas, particle) {
@@ -131,26 +82,6 @@ let graphics = (function() {
     ctx.stroke();
   }
   
-  function loadRocketImg() {
-    let imgRocket = new Image();
-    imgRocket.isReady = false;
-    imgRocket.onload = function() {
-      this.isReady = true;
-    };
-    imgRocket.src = './images/rocket.png';
-    return imgRocket;
-  }
-  
-  function loadBlueRocketImg() {
-    let imgRocket = new Image();
-    imgRocket.isReady = false;
-    imgRocket.onload = function() {
-      this.isReady = true;
-    };
-    imgRocket.src = './images/rocket2.png';
-    return imgRocket;
-  }
-  
   function drawRocket(canvas, rocket, img) {
     let ctx = canvas.getContext('2d');
     if (img.isReady) {
@@ -164,9 +95,9 @@ let graphics = (function() {
     }
   }
 
-  function drawBlueRockets(canvas, rockets, img, stats) { // Need to refactor this section and textures in general.
+  function drawBlueRockets(canvas, rockets, img, stats, blueRocketOpacity) { // Need to refactor this section and textures in general.
     let ctx = canvas.getContext('2d');
-    let opacity = 0.8;
+    let opacity = blueRocketOpacity.currentOpacity;
     for (let i = 0; i < rockets.length; i++) {
       let rocket = rockets[i];
       if (img.isReady) {
@@ -183,6 +114,9 @@ let graphics = (function() {
       ctx.translate(overlay.width/20, overlay.height/2 - (overlay.height/10))
       ctx.rotate(Math.PI);
       ctx.drawImage(img, -16, -17, 32, 34);
+      ctx.globalAlpha = 0.5;
+      ctx.lineWidth = 1;
+      drawText(ctx, {font: '12px Arial', fillStyle: 'white', strokeStyle: 'white', position: {x: 15, y: 10}, rotation: 0, text: '' + stats.blueRockets.player1});
       ctx.restore();
     }
     if (stats.blueRockets.player2 > 0 && img.isReady) {
@@ -190,28 +124,11 @@ let graphics = (function() {
       ctx.globalAlpha = opacity;
       ctx.translate(overlay.width/20, overlay.height/2 + (overlay.height/10))
       ctx.drawImage(img, -16, -17, 32, 34);
+      ctx.globalAlpha = 1;
+      ctx.lineWidth = 1;
+      drawText(ctx, {font: '12px Arial', fillStyle: 'white', strokeStyle: 'white', position: {x: 15, y: 10}, rotation: 0, text: '' + stats.blueRockets.player2});
       ctx.restore();
     }
-  }
-  
-  function loadBombImg() {
-    let imgBomb = new Image();
-    imgBomb.isReady = false;
-    imgBomb.onload = function() {
-      this.isReady = true;
-    };
-    imgBomb.src = './images/bomb.png';
-    return imgBomb;
-  }
-
-  function loadRedBombImg() {
-    let imgBomb = new Image();
-    imgBomb.isReady = false;
-    imgBomb.onload = function() {
-      this.isReady = true;
-    };
-    imgBomb.src = './images/red bomb.png';
-    return imgBomb;
   }
   
   function drawBomb(canvas, bomb, img) {
@@ -256,15 +173,6 @@ let graphics = (function() {
   }
 
   let api = {
-    loadSmoke2: loadSmoke2,
-    loadFire1: loadFire1,
-    loadFire2: loadFire2,
-    loadFire3: loadFire3,
-    loadFireBlue: loadFireBlue,
-    loadRocketImg: loadRocketImg,
-    loadBlueRocketImg: loadBlueRocketImg,
-    loadBombImg: loadBombImg,
-    loadRedBombImg: loadRedBombImg,
     drawParticles: drawParticles,
     drawPuck: drawPuck,
     drawPaddle: drawPaddle,

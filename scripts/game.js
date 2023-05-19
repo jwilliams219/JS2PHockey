@@ -49,8 +49,8 @@ function game() {
     window = { height: domRect["height"], width: domRect["width"] };
     stats.score = { player1: 0, player2: 0, newRender: true };
     stats.blueRockets = { player1: 0, player2: 0 };
-    consumables = { bombs: [], redBombs: [], rockets: [], blueRockets: [], imgBomb: graphics.loadBombImg(), imgRedBomb: graphics.loadRedBombImg(),
-      imgRocket: graphics.loadRocketImg(), imgBlueRocket: graphics.loadBlueRocketImg(), rocketEffectCount: 0, bombEffectCount: 0, blueRocketEffectCount: 0 };
+    consumables = { bombs: [], redBombs: [], rockets: [], blueRockets: [], blueRocketOpacity: {currentOpacity: 1.0, goingUp: false}, imgBomb: loadAssets.bombImg(), imgRedBomb: loadAssets.redBombImg(),
+      imgRocket: loadAssets.rocketImg(), imgBlueRocket: loadAssets.blueRocketImg(), rocketEffectCount: 0, bombEffectCount: 0, blueRocketEffectCount: 0 };
       
     adjustGameToWindowSize();
 
@@ -126,7 +126,7 @@ function game() {
       graphics.drawCountdown(canvas.overlay, timers);
     }
     graphics.drawRockets(canvas.overlay, consumables.rockets, consumables.imgRocket)
-    graphics.drawBlueRockets(canvas.overlay, consumables.blueRockets, consumables.imgBlueRocket, stats);
+    graphics.drawBlueRockets(canvas.overlay, consumables.blueRockets, consumables.imgBlueRocket, stats, consumables.blueRocketOpacity);
     graphics.drawBombs(canvas.overlay, consumables.bombs, consumables.imgBomb)
     graphics.drawBombs(canvas.overlay, consumables.redBombs, consumables.imgRedBomb)
   }

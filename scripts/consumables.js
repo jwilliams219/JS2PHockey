@@ -1,15 +1,41 @@
 'use strict';
 
 function createConsumable(consumables, consumable) {
-    let randomX = getRandomInt(50, overlay.width - 50);
+    let randomX = getRandomInt(75, overlay.width - 50);
     let randomY = getRandomInt(overlay.height/4, overlay.height*3/4);
-    if (consumable === "rocket") {
-      consumables.rockets.push({ x: randomX, y: randomY, r: 15 })
-    } else if (consumable === "bomb") {
-      consumables.bombs.push({ x: randomX, y: randomY, r: 15 })
-    } else if (consumable === "blueRocket") {
-        consumables.blueRockets.push({ x: randomX, y: randomY, r: 15, playerX: 0, playerY: 0, collected: false })
+    let noConflict = checkConsumableConflict({x: randomX, y: randomY}, consumables);
+    if (noConflict) {
+        if (consumable === "rocket") {
+            consumables.rockets.push({ x: randomX, y: randomY, r: 15 })
+        } else if (consumable === "bomb") {
+            consumables.bombs.push({ x: randomX, y: randomY, r: 15 })
+        } else if (consumable === "blueRocket") {
+            consumables.blueRockets.push({ x: randomX, y: randomY, r: 15, playerX: 0, playerY: 0, collected: false })
+        }
     }
+}
+
+// Return true if there is no consumable present in the vicinity.
+function checkConsumableConflict(newCenter, consumables) {
+    for (let i = 0; i < consumables.bombs.length; i++) {
+        let bomb = consumables.bombs[i];
+        if (distanceBetweenPoints(newCenter.x, newCenter.y, bomb.x, bomb.y) < 40) {
+            return false;
+        } 
+    }
+    for (let i = 0; i < consumables.rockets.length; i++) {
+        let rocket = consumables.rockets[i];
+        if (distanceBetweenPoints(newCenter.x, newCenter.y, rocket.x, rocket.y) < 40) {
+            return false;
+        } 
+    }
+    for (let i = 0; i < consumables.blueRockets.length; i++) {
+        let rocket = consumables.blueRockets[i];
+        if (distanceBetweenPoints(newCenter.x, newCenter.y, rocket.x, rocket.y) < 40) {
+            return false;
+        } 
+    }
+    return true;
 }
 
 // Part of bomb visual effect.
@@ -17,7 +43,7 @@ function createRedBomb(consumables, bomb) {
     consumables.redBombs.push({ x: bomb.x, y: bomb.y, r: bomb.r, lifetime: 200, startParticles: true })
 }
 
-// Update conmsumable spawn timers.
+// Update conmsumable spawn timers and blue rockets current opacity.
 function updateConsumableTimers(consumables, timers, elapsedTime, particles) {
     if (timers.resetTime <= 0) {
         // Create the consumables close to spawn times(slightly random).
@@ -54,7 +80,22 @@ function updateConsumableTimers(consumables, timers, elapsedTime, particles) {
     for (let i = remove.length-1; i > -1; i--) {
         consumables.redBombs.splice(remove[i], 1);
     }
-    remove.length = 0;
+
+    // Update blueRocketOpacity
+    let opacity = consumables.blueRocketOpacity;
+    if (opacity.goingUp) {
+        opacity.currentOpacity += elapsedTime/2000;
+        if (opacity.currentOpacity > 1) {
+            opacity.currentOpacity = 1.0;
+            opacity.goingUp = false;
+        }
+    } else {
+        opacity.currentOpacity -= elapsedTime/2000;
+        if (opacity.currentOpacity < 0.6) {
+            opacity.currentOpacity = 0.6;
+            opacity.goingUp = true;
+        }
+    }
 }
 
 function rocketEffect(puck, timers, consumables) {
@@ -89,7 +130,7 @@ function collectBlueRocket(puck, stats, blueRocket) {
 
 function useBlueRocket(puck, timers, consumables, stats, player) {
     timers.resetTime = 50; // Pause for short time.
-    consumables.blueRocketEffectCount = 1;
+    consumables.blueRocketEffectCount += 1;
     increaseSpeedPercent(puck, 60); // Increase puck speed by 60%.
     
     // Get new random direction velocities based on speed, toward enemy side.
