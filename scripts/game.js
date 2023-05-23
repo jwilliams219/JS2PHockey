@@ -52,14 +52,9 @@ function game() {
     consumables = { 
       bombs: [], redBombs: [], rockets: [], blueRockets: [], 
       blueRocketOpacity: {currentOpacity: 1.0, goingUp: false}, rocketEffectCount: 0, bombEffectCount: 0, blueRocketEffectCount: 0, 
-      images: { bomb: loadAssets.bombImg(), redBomb: loadAssets.redBombImg(), rocket: loadAssets.rocketImg(), blueRocket: loadAssets.blueRocketImg()},
-      sounds: { fuse: soundQueue(), ignition: soundQueue(), explosion: soundQueue()}
+      images: initialAssets.images,
+      sounds: initialAssets.sounds
     };
-    for (let i = 0; i < 5; i++) { // Add number of sound assets.
-      consumables.sounds.fuse.addAsset(loadAssets.fuseSound());
-      consumables.sounds.ignition.addAsset(loadAssets.ignitionSound());
-      consumables.sounds.explosion.addAsset(loadAssets.explosionSound());
-    }
       
     adjustGameToWindowSize();
 

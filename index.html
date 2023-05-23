@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="./styles/style.css">
     <title>Game</title>
   </head>
-  <body>
+  <body onload=loadInitialAssets()>
     <div id="game" class="game">
       <div id="p1" class="p1">
         <canvas id="canvas1" class="canvas1"></canvas>
@@ -17,9 +17,9 @@
       </div>
       <canvas id="overlay" class="overlay"></canvas>
     </div>
-    <script src="./scripts/math.js"></script>
     <script src="./scripts/loadAssets.js"></script>
     <script src="./scripts/render.js"></script>
+    <script src="./scripts/math.js"></script>
     <script src="./scripts/particles.js"></script>
     <script src="./scripts/consumables.js"></script>
     <script src="./scripts/physics.js"></script>

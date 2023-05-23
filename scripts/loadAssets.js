@@ -1,5 +1,28 @@
 'use strict';
 
+// Returns object that can handle multiple sound calls at a time.
+function soundQueue() {
+  let soundQueue = { assets: [], queue: 0};
+  
+  soundQueue.addAsset = (asset) => {
+      soundQueue.assets.push(asset);
+  }
+
+  soundQueue.play = () => {
+      if (soundQueue.assets.length !== 0 && soundQueue.assets[soundQueue.queue].isReady) {
+          soundQueue.assets[soundQueue.queue].play();
+      }
+      if (soundQueue.queue.length === 0 || soundQueue.queue === soundQueue.assets.length-1) {
+          soundQueue.queue = 0;
+      } else {
+          soundQueue.queue++;
+      }
+  }
+
+  return soundQueue;
+}
+
+let initialAssets = {};
 
 let loadAssets = (function() {
 
@@ -140,3 +163,16 @@ let loadAssets = (function() {
 
   return api;
 }());
+
+// Load assets on page load instead of when game starts to avoid faults on first time load.
+function loadInitialAssets() {
+  initialAssets = {
+    images: { bomb: loadAssets.bombImg(), redBomb: loadAssets.redBombImg(), rocket: loadAssets.rocketImg(), blueRocket: loadAssets.blueRocketImg()},
+    sounds: { fuse: soundQueue(), ignition: soundQueue(), explosion: soundQueue()}
+  }
+  for (let i = 0; i < 5; i++) { // Add number of sound assets.
+    initialAssets.sounds.fuse.addAsset(loadAssets.fuseSound());
+    initialAssets.sounds.ignition.addAsset(loadAssets.ignitionSound());
+    initialAssets.sounds.explosion.addAsset(loadAssets.explosionSound());
+  }
+}

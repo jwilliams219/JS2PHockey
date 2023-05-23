@@ -197,25 +197,3 @@ function endBombEffects(puck, timers, consumables) {
     }
     consumables.bombEffectCount = 0;
 }
-
-// Returns object that can handle multiple sound calls at a time.
-function soundQueue() {
-    let soundQueue = { assets: [], queue: 0};
-    
-    soundQueue.addAsset = (asset) => {
-        soundQueue.assets.push(asset);
-    }
-
-    soundQueue.play = () => {
-        if (soundQueue.assets.length !== 0 && soundQueue.assets[soundQueue.queue].isReady) {
-            soundQueue.assets[soundQueue.queue].play();
-        }
-        if (soundQueue.queue.length === 0 || soundQueue.queue === soundQueue.assets.length-1) {
-            soundQueue.queue = 0;
-        } else {
-            soundQueue.queue++;
-        }
-    }
-
-    return soundQueue;
-}
