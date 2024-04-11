@@ -1,29 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <link rel="icon" href="./images/favicon.ico" type="image/x-icon" />
-    <link rel="stylesheet" href="./styles/style.css">
-    <title>Game</title>
-  </head>
-  <body onload=loadInitialAssets()>
-    <div id="game" class="game">
-      <div id="p1" class="p1">
-        <canvas id="canvas1" class="canvas1"></canvas>
-      </div>
-      <div id="p2" class="p2">
-        <canvas id="canvas2" class="canvas2"></canvas>
-      </div>
-      <canvas id="overlay" class="overlay"></canvas>
-    </div>
-    <script src="./scripts/loadAssets.js"></script>
-    <script src="./scripts/render.js"></script>
-    <script src="./scripts/math.js"></script>
-    <script src="./scripts/particles.js"></script>
-    <script src="./scripts/consumables.js"></script>
-    <script src="./scripts/physics.js"></script>
-    <script src="./scripts/update.js"></script>
-    <script src="./scripts/game.js"></script>
-  </body>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <link rel="icon" href="./images/favicon.ico" type="image/x-icon" />
+        <link rel="stylesheet" href="./styles/style.css">
+        <title>Game</title>
+    </head>
+    <body onload="MyScreen.screen.initialize();">
+        <div id="game" class="game">
+        <div id = "main-menu" class = "screen">
+            <ul class = "menu-list">
+                <li><button id = "button-1p">1 Player vs AI</button></li>
+                <li><button id = "button-local">2-Player Share Device</button></li>
+                <li><button id = "button-multiplayer">2-Player Online (Not implemented)</button></li>
+            </ul>
+        </div>
+        <div id = "multiplayer-menu" class = "screen">
+            <h1>TODO</h1>
+        </div>
+        <div id="game-play" class = "screen">
+            <div id="p1" class="p1">
+            <canvas id="canvas1" class="canvas1"></canvas>
+            </div>
+            <div id="p2" class="p2">
+            <canvas id="canvas2" class="canvas2"></canvas>
+            </div>
+            <canvas id="overlay" class="overlay"></canvas>
+        </div>
+        </div>
+
+        <script>
+        let MyScreen = {
+            screens : {},
+        };
+        </script>
+        <script src="./scripts/systems/loadAssets.js"></script>
+        <script src="./scripts/systems/render.js"></script>
+        <script src="./scripts/systems/math.js"></script>
+        <script src="./scripts/systems/particles.js"></script>
+        <script src="./scripts/systems/consumables.js"></script>
+        <script src="./scripts/systems/physics.js"></script>
+        <script src="./scripts/systems/update.js"></script>
+        <script src="./scripts/pages/screen.js"></script>
+        <script src="./scripts/pages/mainMenu.js"></script>
+        <script src="./scripts/pages/multiplayerMenu.js"></script>
+        <script src="./scripts/pages/gamePlay.js"></script>
+    </body>
 </html>

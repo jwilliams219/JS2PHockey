@@ -155,22 +155,10 @@ function updateAnimations(elapsedTime, consumables) {
 }
 
 function winner() {
-    let start = createStartButton();
-    if (start) {
-      const startButton = document.getElementById("startButton");
-      startButton.textContent = "Play Again?"
-    }
+  if (document.fullscreenElement) {
     toggleFullscreen();
-}
-
-function createStartButton() {
-  let startButton = document.createElement("button");
-  startButton.id = "startButton";
-  startButton.className = "startButton";
-  startButton.textContent = "Play";
-  startButton.addEventListener("click", () => { start(); });
-  document.body.appendChild(startButton);
-  return true;
+  }
+  MyScreen.screen.showScreen('main-menu');
 }
 
 function toggleFullscreen() {
