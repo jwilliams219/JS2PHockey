@@ -57,9 +57,11 @@ MyScreen.screens['game-play'] = (function(screen) {
         
         adjustGameToWindowSize();
 
-        canvas.canvas1.addEventListener('touchstart', (e) => handleTouch(e, canvas.canvas1, paddles[1], stats, puck, timers, consumables));
+        if (MyScreen.local2P) {
+            canvas.canvas1.addEventListener('touchstart', (e) => handleTouch(e, canvas.canvas1, paddles[1], stats, puck, timers, consumables));
+            canvas.canvas1.addEventListener('touchmove', (e) => handleTouch(e, canvas.canvas1, paddles[1], stats, puck, timers, consumables));
+        }
         canvas.canvas2.addEventListener('touchstart', (e) => handleTouch(e, canvas.canvas2, paddles[2], stats, puck, timers, consumables));
-        canvas.canvas1.addEventListener('touchmove', (e) => handleTouch(e, canvas.canvas1, paddles[1], stats, puck, timers, consumables));
         canvas.canvas2.addEventListener('touchmove', (e) => handleTouch(e, canvas.canvas2, paddles[2], stats, puck, timers, consumables));
         
         prevTime = performance.now();
@@ -92,8 +94,14 @@ MyScreen.screens['game-play'] = (function(screen) {
     }
 
     function update(elapsedTime) {
+        // Update AI if currently in 1 Player mode.
+        if (!MyScreen.local2P) {
+            updateAI(canvas.overlay, puck, paddles, elapsedTime);
+        }
+
         // Main physics update.
         let scorePoint = updatePuck(canvas.overlay, puck, paddles, consumables, particles, timers, elapsedTime, stats);
+
 
         // Update if player has scored.
         let gameIsOver = updateScore(canvas.overlay, scorePoint, stats.score, puck, timers, consumables);

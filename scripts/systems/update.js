@@ -173,3 +173,29 @@ function toggleFullscreen() {
   }
   return "done";
 }
+
+
+function updateAI(overlay, puck, paddles, elapsedTime) {
+    let speed = overlay.width/1500;
+    let paddle = paddles[1];
+    if (puck.y < overlay.height/2) {
+        if (paddle.x < puck.x - (paddle.length/4)) {
+            if (puck.x - paddle.x > paddle.length*0.6) {
+                paddle.x += speed * elapsedTime;
+            } else {
+                paddle.x += speed * elapsedTime * ((puck.x - paddle.x) / (paddle.length*0.6));
+            }
+        } else if (paddle.x > puck.x + (paddle.length/4)) {
+            if (paddle.x - puck.x > paddle.length*0.6) {
+                paddle.x -= speed * elapsedTime;
+            } else {
+                paddle.x -= speed * elapsedTime * ((paddle.x - puck.x) / (paddle.length*0.6));
+            }
+        }
+    }
+    if (paddle.x < paddle.length/2) {
+        paddle.x = paddle.length/2;
+    } else if (paddle.x > overlay.width - paddle.length/2) {
+        paddle.x = overlay.width - paddle.length/2;
+    }
+}

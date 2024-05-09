@@ -11,9 +11,9 @@
         <div id="game" class="game">
             <div id = "main-menu" class = "screen">
                 <ul class = "menu">
-                    <li><button id = "button-local">2-Player Local (On this device)</button></li>
                     <li><button id = "button-1p">1 Player vs AI</button></li>
-                    <li><button id = "button-multiplayer">2-Player Online (Not implemented)</button></li>
+                    <li><button id = "button-local">2-Player Local (On this device)</button></li>
+                    <!--<li><button id = "button-multiplayer">2-Player Online (Not implemented)</button></li>-->
                 </ul>
             </div>
             <div id = "multiplayer-menu" class = "screen">
@@ -35,6 +35,7 @@
         <script>
         let MyScreen = {
             screens : {},
+            local2P : true,
         };
         </script>
         <script src="./scripts/systems/loadAssets.js"></script>
