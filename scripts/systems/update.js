@@ -47,7 +47,6 @@ function updatePuck(overlay, puck, paddle, consumables, particles, timers, elaps
     if (timers.resetTime > 0) {
         timers.resetTime -= elapsedTime;
     } else {
-
         if (timers.bombExpireTime > 0) {
             timers.bombExpireTime -= elapsedTime;
         } else if (timers.bombExpireTime < 0) { // Janky code for bomb worn off trigger
@@ -63,10 +62,10 @@ function updatePuck(overlay, puck, paddle, consumables, particles, timers, elaps
           endRocketEffects(puck, consumables); 
         }
         createRocketExhaustParticles(puck, particles, consumables);
+        updatePuckColor(puck, consumables);
+        return pointDetection(puck, overlay);
     }
-    
-    updatePuckColor(puck, consumables);
-    return pointDetection(puck, overlay);
+    return [false, 0];  
 }
 
 // Update puck color based on consumable effects.
@@ -155,22 +154,10 @@ function updateAnimations(elapsedTime, consumables) {
 }
 
 function winner() {
-    let start = createStartButton();
-    if (start) {
-      const startButton = document.getElementById("startButton");
-      startButton.textContent = "Play Again?"
-    }
+  if (document.fullscreenElement) {
     toggleFullscreen();
-}
-
-function createStartButton() {
-  let startButton = document.createElement("button");
-  startButton.id = "startButton";
-  startButton.className = "startButton";
-  startButton.textContent = "Play";
-  startButton.addEventListener("click", () => { start(); });
-  document.body.appendChild(startButton);
-  return true;
+  }
+  MyScreen.screen.showScreen('main-menu');
 }
 
 function toggleFullscreen() {
@@ -185,4 +172,30 @@ function toggleFullscreen() {
     document.getElementById("overlay").setAttribute("style", "touch-action: auto");
   }
   return "done";
+}
+
+
+function updateAI(overlay, puck, paddles, elapsedTime) {
+    let speed = overlay.width/1500;
+    let paddle = paddles[1];
+    if (puck.y < overlay.height/2) {
+        if (paddle.x < puck.x - (paddle.length/4)) {
+            if (puck.x - paddle.x > paddle.length*0.6) {
+                paddle.x += speed * elapsedTime;
+            } else {
+                paddle.x += speed * elapsedTime * ((puck.x - paddle.x) / (paddle.length*0.6));
+            }
+        } else if (paddle.x > puck.x + (paddle.length/4)) {
+            if (paddle.x - puck.x > paddle.length*0.6) {
+                paddle.x -= speed * elapsedTime;
+            } else {
+                paddle.x -= speed * elapsedTime * ((paddle.x - puck.x) / (paddle.length*0.6));
+            }
+        }
+    }
+    if (paddle.x < paddle.length/2) {
+        paddle.x = paddle.length/2;
+    } else if (paddle.x > overlay.width - paddle.length/2) {
+        paddle.x = overlay.width - paddle.length/2;
+    }
 }
