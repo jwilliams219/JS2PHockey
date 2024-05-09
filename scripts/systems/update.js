@@ -47,7 +47,6 @@ function updatePuck(overlay, puck, paddle, consumables, particles, timers, elaps
     if (timers.resetTime > 0) {
         timers.resetTime -= elapsedTime;
     } else {
-
         if (timers.bombExpireTime > 0) {
             timers.bombExpireTime -= elapsedTime;
         } else if (timers.bombExpireTime < 0) { // Janky code for bomb worn off trigger
@@ -63,10 +62,10 @@ function updatePuck(overlay, puck, paddle, consumables, particles, timers, elaps
           endRocketEffects(puck, consumables); 
         }
         createRocketExhaustParticles(puck, particles, consumables);
+        updatePuckColor(puck, consumables);
+        return pointDetection(puck, overlay);
     }
-    
-    updatePuckColor(puck, consumables);
-    return pointDetection(puck, overlay);
+    return [false, 0];  
 }
 
 // Update puck color based on consumable effects.

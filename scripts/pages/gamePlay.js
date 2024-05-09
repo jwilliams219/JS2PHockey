@@ -147,8 +147,6 @@ MyScreen.screens['game-play'] = (function(screen) {
         initializeGame();
     }
 
-  
-    createStartButton();
 
     return {
         initialize : initialize,

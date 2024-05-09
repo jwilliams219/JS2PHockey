@@ -20,7 +20,7 @@ MyScreen.screens['main-menu'] = (function(screen) {
         document.getElementById('button-multiplayer').addEventListener(
             'click',
             function() {
-                screen.showScreen('game-play');
+                screen.showScreen('multiplayer-menu');
             }
         );
     }
