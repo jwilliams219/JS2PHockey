@@ -1,7 +1,7 @@
 // v1.1
 'use strict';
 
-MyScreen.screens['game-play'] = (function(screen) {
+MyScreen.screens['game-play'] = (function() {
     var prevTime;
     var timers = {};
     var paddles = {};
@@ -161,5 +161,5 @@ MyScreen.screens['game-play'] = (function(screen) {
         run : run
     };
 
-}(MyScreen.screen));
+}());
   
